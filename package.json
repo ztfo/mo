@@ -1,5 +1,5 @@
 {
-  "name": "migo-build",
+  "name": "mo",
   "version": "1.0.0",
   "description": "AI-Powered Project Management Cursor IDE Plugin",
   "main": "dist/extension.js",
