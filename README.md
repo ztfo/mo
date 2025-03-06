@@ -1,4 +1,4 @@
-# Migo-Build: AI-Powered Project Management Cursor IDE Plugin
+# Mo: AI-Powered Project Management Cursor IDE Plugin
 
 An intelligent project planning and management tool that seamlessly integrates with Cursor IDE and Linear to automate development workflows.
 
