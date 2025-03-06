@@ -36,8 +36,8 @@ interface LinearIssue {
 }
 
 export default {
-  id: "migo-build-cursor-plugin",
-  name: "Migo Build Plugin",
+  id: "mo-cursor-plugin",
+  name: "Mo Plugin",
   description: "AI-driven project planning and management integrated with Linear.",
 
   activate(ctx: CursorContext): void {

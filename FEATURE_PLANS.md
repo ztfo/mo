@@ -1,6 +1,6 @@
 # Feature Plans
 
-This document automatically logs feature descriptions, AI-generated tasks, and periodic updates for the Migo-Build project.
+This document automatically logs feature descriptions, AI-generated tasks, and periodic updates for the Mo project.
 
 ## Recent Features
 
