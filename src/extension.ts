@@ -1,9 +1,8 @@
-import { createLinearIssue, getTeamIssues } from './linear-api';
+import { createLinearIssue, getTeamIssues, checkCredentials } from './linear-api';
 import * as fs from 'fs';
 import * as path from 'path';
 
 // Configuration
-const TEAM_ID = "your-linear-team-id"; // Replace this
 const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
 
 // Paths
