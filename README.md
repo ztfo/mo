@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="src/assets/mo-headshot.png" alt="Mo" width="200">
-</p>
-
 # Mo: AI-Powered Project Management Cursor Plugin
 
 An intelligent project planning and management tool that seamlessly integrates with Cursor IDE and Linear to automate development workflows.
