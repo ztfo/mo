@@ -1,6 +1,9 @@
 import { createEnhancedLinearIssue, getFilteredIssues, getTeamDetails, addComment } from './linear-api-enhanced';
+import { UIManager, mockCursorUI, CursorUI } from './ui-framework';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+import { TaskQueue, Task } from './task-queue';
 
 // Configuration
 const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
@@ -8,6 +11,7 @@ const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
 // Paths
 const repoPath = process.cwd();
 const featurePlansPath = path.join(repoPath, 'FEATURE_PLANS.md');
+const settingsPath = path.join(os.homedir(), '.mo-settings.json');
 
 // Types for Cursor extension API
 interface CursorContext {
@@ -16,6 +20,7 @@ interface CursorContext {
     registerCommand: (command: string, handler: CommandHandler) => { dispose: () => void };
     askAI: (prompt: string) => Promise<string>;
   };
+  ui?: CursorUI; // Optional UI API provided by Cursor
 }
 
 interface CursorCommandContext {
@@ -41,14 +46,30 @@ interface LinearState {
   type: string;
 }
 
-// Task queue for storing tasks before pushing to Linear
-const taskQueue: {
-  title: string;
-  description: string;
-  priority?: number;
-  estimate?: number;
-  featureContext?: string;
-}[] = [];
+// Settings storage
+let settings: Record<string, any> = {
+  linearApiKey: process.env.LINEAR_API_KEY || '',
+  linearTeamId: process.env.LINEAR_TEAM_ID || '',
+  defaultPriority: '2',
+  defaultEstimate: '2',
+  syncInterval: '5',
+  autoSync: true
+};
+
+// Load settings from disk if available
+try {
+  if (fs.existsSync(settingsPath)) {
+    const settingsData = fs.readFileSync(settingsPath, 'utf8');
+    const loadedSettings = JSON.parse(settingsData);
+    settings = { ...settings, ...loadedSettings };
+    console.log('Settings loaded from disk:', settings);
+  }
+} catch (error) {
+  console.error('Failed to load settings from disk:', error);
+}
+
+// UI Manager instance
+let uiManager: UIManager | null = null;
 
 export default {
   id: "mo-cursor-plugin",
@@ -56,6 +77,13 @@ export default {
   description: "AI-driven project planning and management integrated with Linear.",
 
   activate(ctx: CursorContext): void {
+    // Initialize UI Manager
+    const ui = ctx.ui || mockCursorUI;
+    uiManager = new UIManager(ui);
+    
+    // Initialize task queue
+    const taskQueue = TaskQueue.getInstance();
+    
     // Register the plan-project command
     ctx.subscriptions.push(
       ctx.chat.registerCommand("plan-project", async (ctx: CursorCommandContext, input: string) => {
@@ -93,7 +121,7 @@ export default {
           const taskText = line.replace(/^\d+\.\s*/, '');
           const estimateMatch = taskText.match(/\((\d+)\)$/);
           
-          let estimate = 2; // Default estimate
+          let estimate = parseInt(settings.defaultEstimate) || 2; // Default estimate
           let title = taskText;
           
           if (estimateMatch) {
@@ -104,14 +132,19 @@ export default {
           return {
             title,
             description: `Part of feature: ${input}`,
-            priority: 2, // Default priority
+            priority: parseInt(settings.defaultPriority) || 2, // Default priority
             estimate,
             featureContext: input
           };
         });
 
         // Add tasks to queue
-        taskQueue.push(...parsedTasks);
+        taskQueue.addTasks(parsedTasks);
+        
+        // Update UI if visible
+        if (uiManager) {
+          uiManager.updateTaskQueue(taskQueue.getAllTasks());
+        }
 
         // Update FEATURE_PLANS.md
         const timestamp = new Date().toISOString();
@@ -142,6 +175,7 @@ Successfully planned feature: **${input}**
 - Updated FEATURE_PLANS.md
 
 Use \`/push-tasks\` to push these tasks to Linear or \`/view-tasks\` to see the current task queue.
+You can also use \`/show-task-queue\` to open the task queue panel.
         `;
       })
     );
@@ -149,8 +183,9 @@ Use \`/push-tasks\` to push these tasks to Linear or \`/view-tasks\` to see the 
     // Register the push-tasks command to push queued tasks to Linear
     ctx.subscriptions.push(
       ctx.chat.registerCommand("push-tasks", async () => {
-        if (taskQueue.length === 0) {
-          return "No tasks in the queue. Use `/plan-project` to generate tasks first.";
+        const tasks = taskQueue.getSelectedTasks();
+        if (tasks.length === 0) {
+          return "No tasks selected. Use `/show-task-queue` to select tasks to push.";
         }
 
         try {
@@ -166,10 +201,10 @@ Use \`/push-tasks\` to push these tasks to Linear or \`/view-tasks\` to see the 
             return "Could not find 'Backlog' state in Linear. Please check your Linear workflow configuration.";
           }
 
-          // Create Linear issues for each task in the queue
+          // Create Linear issues for each selected task
           const createdIssues: { title: string; url: string }[] = [];
           
-          for (const task of taskQueue) {
+          for (const task of tasks) {
             try {
               const response = await createEnhancedLinearIssue(
                 task.title,
@@ -194,21 +229,25 @@ Use \`/push-tasks\` to push these tasks to Linear or \`/view-tasks\` to see the 
                     `This task is part of the "${task.featureContext}" feature.`
                   );
                 }
+                
+                // Remove the task from the queue
+                taskQueue.removeTask(task.id);
               }
             } catch (error) {
               console.error(`Failed to create Linear issue for task: ${task.title}`, error);
             }
           }
 
-          // Clear the task queue
-          const pushedTaskCount = taskQueue.length;
-          taskQueue.length = 0;
+          // Update UI if visible
+          if (uiManager) {
+            uiManager.updateTaskQueue(taskQueue.getAllTasks());
+          }
 
           return `
-Successfully pushed ${createdIssues.length}/${pushedTaskCount} tasks to Linear:
+Successfully pushed ${createdIssues.length}/${tasks.length} tasks to Linear:
 ${createdIssues.map(issue => `- [${issue.title}](${issue.url})`).join('\n')}
 
-Task queue has been cleared.
+Selected tasks have been removed from the queue.
           `;
         } catch (error) {
           console.error('Failed to push tasks to Linear:', error);
@@ -220,15 +259,16 @@ Task queue has been cleared.
     // Register the view-tasks command to view the current task queue
     ctx.subscriptions.push(
       ctx.chat.registerCommand("view-tasks", async () => {
-        if (taskQueue.length === 0) {
+        const tasks = taskQueue.getAllTasks();
+        if (tasks.length === 0) {
           return "No tasks in the queue. Use `/plan-project` to generate tasks first.";
         }
 
         return `
-Current task queue (${taskQueue.length} tasks):
-${taskQueue.map((task, index) => `${index + 1}. ${task.title} (Priority: ${task.priority || 'Not set'}, Estimate: ${task.estimate || 'Not set'})`).join('\n')}
+Current task queue (${tasks.length} tasks):
+${tasks.map((task, index) => `${index + 1}. ${task.title} (Priority: ${task.priority || 'Not set'}, Estimate: ${task.estimate || 'Not set'})`).join('\n')}
 
-Use \`/push-tasks\` to push these tasks to Linear.
+Use \`/push-tasks\` to push these tasks to Linear or \`/show-task-queue\` to open the task queue panel.
         `;
       })
     );
@@ -248,13 +288,77 @@ Use \`/push-tasks\` to push these tasks to Linear.
           
           const issues = response.data?.issues?.nodes || [];
           
+          // Update UI if visible
+          if (uiManager) {
+            uiManager.updateLinearIssues(issues);
+          }
+          
           return `
 Retrieved ${issues.length} high-priority issues from Linear (last 7 days):
 ${issues.map((issue: any) => `- ${issue.identifier}: ${issue.title} (${issue.state.name}, Priority: ${issue.priority})`).join('\n')}
+
+Use \`/show-linear-sync\` to open the Linear sync panel.
           `;
         } catch (error) {
           console.error('Failed to sync Linear issues:', error);
           return "Failed to sync with Linear. Check your API key and team ID.";
+        }
+      })
+    );
+    
+    // Register UI commands
+    
+    // Show task queue panel
+    ctx.subscriptions.push(
+      ctx.chat.registerCommand("show-task-queue", async () => {
+        if (uiManager) {
+          uiManager.showTaskQueue();
+          uiManager.updateTaskQueue(taskQueue.getAllTasks());
+          return "Task queue panel opened.";
+        } else {
+          return "UI is not available in this environment.";
+        }
+      })
+    );
+    
+    // Show Linear sync panel
+    ctx.subscriptions.push(
+      ctx.chat.registerCommand("show-linear-sync", async () => {
+        if (uiManager) {
+          uiManager.showLinearSync();
+          
+          // Fetch issues to populate the panel
+          try {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            
+            const response = await getFilteredIssues({
+              priorities: [1, 2], // High and medium priority
+              createdAt: { after: sevenDaysAgo.toISOString() }
+            }, { first: 20 });
+            
+            const issues = response.data?.issues?.nodes || [];
+            uiManager.updateLinearIssues(issues);
+          } catch (error) {
+            console.error('Failed to fetch issues for Linear sync panel:', error);
+          }
+          
+          return "Linear sync panel opened.";
+        } else {
+          return "UI is not available in this environment.";
+        }
+      })
+    );
+    
+    // Show settings panel
+    ctx.subscriptions.push(
+      ctx.chat.registerCommand("show-settings", async () => {
+        if (uiManager) {
+          uiManager.showSettings();
+          uiManager.updateSettings(settings);
+          return "Settings panel opened.";
+        } else {
+          return "UI is not available in this environment.";
         }
       })
     );
@@ -282,4 +386,73 @@ ${issues.map((issue: any) => `- ${issue.identifier}: ${issue.title} (${issue.sta
 
     console.log('Mo plugin activated successfully!');
   },
+  
+  // Handler for pushing tasks to Linear from the UI
+  async pushTasksToLinear(tasks: Task[]): Promise<void> {
+    if (tasks.length === 0) return;
+    
+    try {
+      // Get team details to get state IDs
+      const teamResult = await getTeamDetails();
+      if (!teamResult.data?.team) {
+        throw new Error("Failed to get team details from Linear");
+      }
+
+      // Get the "Backlog" state ID
+      const backlogState = teamResult.data.team.states.nodes.find((state: LinearState) => state.name === "Backlog");
+      if (!backlogState) {
+        throw new Error("Could not find 'Backlog' state in Linear");
+      }
+
+      // Create Linear issues for each task
+      for (const task of tasks) {
+        await createEnhancedLinearIssue(
+          task.title,
+          task.description || "",
+          {
+            priority: task.priority,
+            stateId: backlogState.id,
+            estimate: task.estimate
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Failed to push tasks to Linear:', error);
+      throw error;
+    }
+  },
+  
+  // Handler for refreshing issues from Linear
+  async refreshLinearIssues(): Promise<any[]> {
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const response = await getFilteredIssues({
+        priorities: [1, 2], // High and medium priority
+        createdAt: { after: sevenDaysAgo.toISOString() }
+      }, { first: 20 });
+      
+      return response.data?.issues?.nodes || [];
+    } catch (error) {
+      console.error('Failed to refresh issues from Linear:', error);
+      throw error;
+    }
+  },
+  
+  // Handler for saving settings
+  async saveSettings(newSettings: Record<string, any>): Promise<void> {
+    try {
+      // Update settings
+      settings = { ...settings, ...newSettings };
+      
+      // Persist settings to disk
+      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+      
+      console.log('Settings saved:', settings);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      throw error;
+    }
+  }
 }; 

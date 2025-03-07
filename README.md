@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/mo-headshot.png" alt="Mo" width="200">
+</p>
+
 # Mo: AI-Powered Project Management Cursor Plugin
 
 An intelligent project planning and management tool that seamlessly integrates with Cursor IDE and Linear to automate development workflows.
@@ -10,13 +14,27 @@ Mo aims to be your AI-powered project management assistant that lives within you
 
 ### Current Features
 - **AI-Powered Task Generation**: Break down features into actionable tasks with the help of AI
-- **Linear Integration**: Automatically create and track tickets in Linear
+- **Enhanced Linear Integration**: 
+  - Create and track tickets in Linear with advanced properties (priority, estimates, etc.)
+  - Filter and query issues with advanced criteria
+  - Support for projects, cycles, labels, and other Linear features
+  - Issue relations and comments
+  - Caching for better performance
+- **Advanced Task Queue System**: 
+  - Review, edit, and reorder tasks before pushing to Linear
+  - Drag-and-drop task reordering
+  - Batch operations (set priority, estimate, delete)
+  - Task persistence between sessions
+  - Task filtering and sorting
+- **UI Interface**: 
+  - Task Queue Panel for managing tasks
+  - Linear Sync Panel for viewing and managing issues
+  - Settings Panel for configuring the plugin
 - **Automated Documentation**: Maintains an up-to-date log of all features and tasks
 - **Seamless Cursor IDE Integration**: Run everything directly within your IDE
 
 ### Planned Features
-- **In-Cursor UI Interface**: Task queue dashboard, Linear sync panel, and quick actions bar
-- **Enhanced Linear Integration**: Full API utilization including projects, cycles, labels, and more
+- **Advanced Linear Integration**: Two-way sync, bulk operations, and more
 - **AI-Enhanced Project Management**: Smarter task generation, effort estimation, and dependency detection
 - **Developer Experience Improvements**: Context-aware suggestions, progress tracking, and code-to-task linking
 
@@ -29,39 +47,51 @@ See [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) for a detailed roadmap of upc
    ```bash
    npm install
    ```
-3. Update Linear API credentials in `src/linear-api.ts` and `.env`
+3. Update Linear API credentials in `.env` file:
+   ```
+   LINEAR_API_KEY=your_api_key_here
+   LINEAR_TEAM_ID=your_team_id_here
+   ```
 4. Build the extension:
    ```bash
    npm run build
    ```
+5. Install the extension in Cursor IDE
 
 ## Usage
 
-### Planning a Project Feature
+### Commands
 
-Use the `plan-project` command to generate tasks for a new feature:
+#### Task Management
+- `/plan-project [feature description]`: Generate tasks for a new feature and add them to the queue
+- `/push-tasks`: Push queued tasks to Linear
+- `/view-tasks`: View the current task queue in text format
 
-```
-/plan-project Build user authentication module with OAuth support
-```
+#### UI Panels
+- `/show-task-queue`: Open the Task Queue Panel
+- `/show-linear-sync`: Open the Linear Sync Panel
+- `/show-settings`: Open the Settings Panel
 
-This will:
-- Generate specific, actionable tasks using AI
-- Create Linear tickets for each task
-- Update the `FEATURE_PLANS.md` file with the new feature and tasks
+#### Linear Integration
+- `/sync-linear`: Fetch high-priority issues from Linear
 
-### Syncing with Linear
+### Task Queue Workflow
 
-Use the `sync-linear` command to retrieve the latest issues from Linear:
-
-```
-/sync-linear
-```
+1. Use `/plan-project` to generate tasks for a feature
+2. Review and edit tasks in the Task Queue Panel (`/show-task-queue`)
+   - Edit individual tasks by clicking the "Edit" button
+   - Reorder tasks by dragging and dropping
+   - Select multiple tasks for batch operations
+   - Sort tasks by different criteria
+3. Push tasks to Linear using the panel or `/push-tasks` command
+4. View and manage Linear issues in the Linear Sync Panel (`/show-linear-sync`)
 
 ## Project Structure
 
 - `src/extension.ts`: Core extension functionality
-- `src/linear-api.ts`: Integration with Linear API
+- `src/linear-api-enhanced.ts`: Enhanced Linear API integration
+- `src/ui-framework.ts`: UI components and framework
+- `src/task-queue.ts`: Task queue management system
 - `STACK.md`: Technology stack documentation
 - `SETTINGS.md`: Configuration settings
 - `FEATURE_PLANS.md`: Log of features and tasks
@@ -74,6 +104,8 @@ For development, you can use the watch mode:
 ```bash
 npm run watch
 ```
+
+The plugin includes mock implementations for testing without Cursor's UI API.
 
 ## Contributing
 
