@@ -16,6 +16,35 @@ The Mo plugin uses environment variables for sensitive credentials:
    ```
 3. The `.env` file is already in `.gitignore` to prevent committing credentials
 
+### Additional Linear Configuration (Planned)
+
+In future versions, the following Linear configurations will be supported:
+
+- `LINEAR_PROJECT_ID`: Default project ID for new issues
+- `LINEAR_CYCLE_ID`: Default cycle/sprint ID for new issues
+- `LINEAR_LABEL_IDS`: Default label IDs to apply to new issues
+- `LINEAR_DEFAULT_ASSIGNEE`: Default user to assign issues to
+- `LINEAR_PRIORITY_DEFAULT`: Default priority for new issues
+
 ## Extension Settings
 - Update Frequency: 5 minutes
-- Log Location: FEATURE_PLANS.md 
+- Log Location: FEATURE_PLANS.md
+
+## UI Configuration (Planned)
+
+The upcoming UI interface will include the following configuration options:
+
+### Task Queue Settings
+- Auto-push threshold: Number of tasks to queue before auto-pushing to Linear
+- Default task properties: Set default values for priority, labels, etc.
+- Queue persistence: How long to keep tasks in the queue
+
+### Sync Settings
+- Sync frequency: How often to sync with Linear
+- Sync scope: What data to sync (issues, comments, projects, etc.)
+- Conflict resolution: How to handle conflicts between local and remote changes
+
+### Notification Settings
+- Notification types: What events to receive notifications for
+- Notification format: How notifications should be displayed
+- Do not disturb: Schedule when notifications should be muted 
