@@ -28,7 +28,7 @@ In future versions, the following Linear configurations will be supported:
 
 ## Extension Settings
 - Update Frequency: 5 minutes
-- Log Location: FEATURE_PLANS.md
+- Log Location: docs/features/FEATURE_PLANS.md
 
 ## UI Configuration (Planned)
 
@@ -47,4 +47,9 @@ The upcoming UI interface will include the following configuration options:
 ### Notification Settings
 - Notification types: What events to receive notifications for
 - Notification format: How notifications should be displayed
-- Do not disturb: Schedule when notifications should be muted 
+- Do not disturb: Schedule when notifications should be muted
+
+### Logging Settings
+
+- Auto-Update Interval: 5 minutes
+- Log Location: docs/features/FEATURE_PLANS.md 

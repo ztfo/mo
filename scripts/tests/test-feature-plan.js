@@ -27,7 +27,7 @@ async function testFeaturePlanning(featureDescription) {
     tasks.forEach((task, i) => console.log(`${i+1}. ${task}`));
     
     // 2. Update FEATURE_PLANS.md
-    const featurePlansPath = path.join(__dirname, 'FEATURE_PLANS.md');
+    const featurePlansPath = path.join(__dirname, '../docs/features/FEATURE_PLANS.md');
     const timestamp = new Date().toISOString();
     
     const featurePlan = `

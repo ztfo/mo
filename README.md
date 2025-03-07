@@ -43,7 +43,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
 - **AI-Enhanced Project Management**: Smarter task generation, effort estimation, and dependency detection
 - **Developer Experience Improvements**: Context-aware suggestions, progress tracking, and code-to-task linking
 
-See [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) for a detailed roadmap of upcoming features.
+See [docs/features/ENHANCED_FEATURES.md](./docs/features/ENHANCED_FEATURES.md) for a detailed roadmap of upcoming features.
 
 ## Getting Started
 
@@ -91,17 +91,6 @@ See [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) for a detailed roadmap of upc
 3. Push tasks to Linear using the panel or `/push-tasks` command
 4. View and manage Linear issues in the Linear Sync Panel (`/show-linear-sync`)
 
-## Project Structure
-
-- `src/extension.ts`: Core extension functionality
-- `src/linear-api-enhanced.ts`: Enhanced Linear API integration
-- `src/ui-framework.ts`: UI components and framework
-- `src/task-queue.ts`: Task queue management system
-- `STACK.md`: Technology stack documentation
-- `SETTINGS.md`: Configuration settings
-- `FEATURE_PLANS.md`: Log of features and tasks
-- `ENHANCED_FEATURES.md`: Roadmap for upcoming features
-
 ## Development
 
 For development, you can use the watch mode:
@@ -109,12 +98,6 @@ For development, you can use the watch mode:
 ```bash
 npm run watch
 ```
-
-The plugin includes mock implementations for testing without Cursor's UI API.
-
-## Contributing
-
-Contributions are welcome! See [ENHANCED_FEATURES.md](./ENHANCED_FEATURES.md) for areas where help is needed.
 
 ## License
 

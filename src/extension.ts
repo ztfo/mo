@@ -10,7 +10,7 @@ const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
 
 // Paths
 const repoPath = process.cwd();
-const featurePlansPath = path.join(repoPath, 'FEATURE_PLANS.md');
+const featurePlansPath = path.join(repoPath, 'docs/features/FEATURE_PLANS.md');
 const settingsPath = path.join(os.homedir(), '.mo-settings.json');
 
 // Types for Cursor extension API
