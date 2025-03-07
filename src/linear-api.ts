@@ -24,7 +24,31 @@ export function checkCredentials(): { isValid: boolean; message: string } {
     };
   }
   
+  // Check if API key has the expected format (starts with lin_api_)
+  if (!LINEAR_API_KEY.startsWith('lin_api_')) {
+    return {
+      isValid: false,
+      message: "Linear API key format appears invalid. It should start with 'lin_api_'."
+    };
+  }
+  
+  // Remove check for team_ prefix since Linear API expects a UUID
+  
   return { isValid: true, message: "Linear API credentials configured correctly." };
+}
+
+// Helper function to make authenticated requests to Linear API
+async function makeLinearRequest(query: string) {
+  const response = await fetch(LINEAR_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": LINEAR_API_KEY.startsWith('lin_api_') ? LINEAR_API_KEY : `Bearer ${LINEAR_API_KEY}`,
+    },
+    body: JSON.stringify({ query }),
+  });
+  
+  return response.json();
 }
 
 export async function createLinearIssue(title: string, description: string) {
@@ -33,28 +57,23 @@ export async function createLinearIssue(title: string, description: string) {
     throw new Error(credentials.message);
   }
 
+  // Escape any quotes in the title and description to prevent GraphQL errors
+  const safeTitle = title.replace(/"/g, '\\"');
+  const safeDescription = description.replace(/"/g, '\\"');
+
   const query = `
     mutation {
-      issueCreate(input: {title: "${title}", description: "${description}", teamId: "${TEAM_ID}"}) {
+      issueCreate(input: {title: "${safeTitle}", description: "${safeDescription}", teamId: "${TEAM_ID}"}) {
         success
         issue { id url }
       }
     }
   `;
 
-  const response = await fetch(LINEAR_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${LINEAR_API_KEY}`,
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  return response.json();
+  return makeLinearRequest(query);
 }
 
-// Get all issues for the team
+// Get all issues for the team with more details and a higher limit
 export async function getTeamIssues() {
   const credentials = checkCredentials();
   if (!credentials.isValid) {
@@ -64,30 +83,29 @@ export async function getTeamIssues() {
   const query = `
     query {
       team(id: "${TEAM_ID}") {
-        issues {
+        name
+        key
+        issues(first: 50) {
           nodes {
             id
+            identifier
             title
             description
+            createdAt
+            updatedAt
             state {
+              id
               name
+              color
             }
+            url
           }
         }
       }
     }
   `;
 
-  const response = await fetch(LINEAR_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${LINEAR_API_KEY}`,
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  return response.json();
+  return makeLinearRequest(query);
 }
 
 // Update issue status
@@ -111,14 +129,5 @@ export async function updateIssueStatus(issueId: string, stateId: string) {
     }
   `;
 
-  const response = await fetch(LINEAR_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${LINEAR_API_KEY}`,
-    },
-    body: JSON.stringify({ query }),
-  });
-
-  return response.json();
+  return makeLinearRequest(query);
 } 
