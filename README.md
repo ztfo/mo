@@ -1,8 +1,13 @@
 <p align="center">
-  <img src="src/assets/mo-headshot.png" alt="Mo" width="200">
+  <img src="assets/icon.png" alt="Mo" width="128" height="128">
 </p>
 
 # Mo: AI-Powered Project Management Cursor Plugin
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/cursor-compatible-brightgreen" alt="Cursor Compatible">
+</p>
 
 An intelligent project planning and management tool that seamlessly integrates with Cursor IDE and Linear to automate development workflows.
 

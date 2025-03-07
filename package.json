@@ -1,8 +1,127 @@
 {
   "name": "mo",
   "version": "1.0.0",
+  "publisher": "Luis Palomares",
   "description": "AI-Powered Project Management Cursor IDE Plugin",
   "main": "dist/extension.js",
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.60.0",
+    "cursor": ">=0.2.0"
+  },
+  "activationEvents": [
+    "onCommand:mo.planProject",
+    "onCommand:mo.pushTasks",
+    "onCommand:mo.viewTasks",
+    "onCommand:mo.showTaskQueue",
+    "onCommand:mo.showLinearSync",
+    "onCommand:mo.showSettings",
+    "onCommand:mo.syncLinear"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "mo.planProject",
+        "title": "Mo: Plan Project",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.pushTasks",
+        "title": "Mo: Push Tasks to Linear",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.viewTasks",
+        "title": "Mo: View Tasks",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.showTaskQueue",
+        "title": "Mo: Show Task Queue",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.showLinearSync",
+        "title": "Mo: Show Linear Sync",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.showSettings",
+        "title": "Mo: Show Settings",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      },
+      {
+        "command": "mo.syncLinear",
+        "title": "Mo: Sync with Linear",
+        "icon": {
+          "light": "assets/icon.png",
+          "dark": "assets/icon.png"
+        }
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mo-sidebar",
+          "title": "Mo",
+          "icon": "assets/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "mo-sidebar": [
+        {
+          "id": "mo-task-queue",
+          "name": "Task Queue"
+        },
+        {
+          "id": "mo-linear-sync",
+          "name": "Linear Sync"
+        },
+        {
+          "id": "mo-settings",
+          "name": "Settings"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "mo.showTaskQueue",
+          "when": "view == mo-task-queue",
+          "group": "navigation"
+        },
+        {
+          "command": "mo.showLinearSync",
+          "when": "view == mo-linear-sync",
+          "group": "navigation"
+        },
+        {
+          "command": "mo.showSettings",
+          "when": "view == mo-settings",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -15,7 +134,7 @@
     "linear",
     "ai"
   ],
-  "author": "",
+  "author": "Luis Palomares",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.3",
