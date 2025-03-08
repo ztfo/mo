@@ -237,4 +237,8 @@ export class TaskQueue {
     const tasks = this.getAllTasks();
     this.listeners.forEach(listener => listener(tasks));
   }
+
+  public getTaskById(id: string): Task | undefined {
+    return this.tasks.find(task => task.id === id);
+  }
 } 

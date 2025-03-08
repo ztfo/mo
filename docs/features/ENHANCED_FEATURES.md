@@ -1,106 +1,168 @@
-# Mo Plugin - Enhanced Features Plan
+# Mo Plugin - Enhanced Features Plan (Revised)
 
 ## Overview
-This document outlines the expanded scope and enhanced features for the Mo plugin, focusing on creating a more integrated experience with Linear and providing a UI within Cursor IDE.
+This document outlines the revised scope and enhanced features for the Mo plugin, focusing on creating a Linear-centric project management experience with flexible context sharing for Cursor IDE.
 
-## Core Enhancement Areas
+## Extension API Constraints
 
-### 1. In-Cursor UI Interface
-- **Task Queue Dashboard**: A panel within Cursor to review, edit, and manage tasks before pushing to Linear
-- **Linear Sync Panel**: Visual interface for syncing with Linear, viewing recent issues, and managing project status
-- **Quick Actions Bar**: Shortcuts for common actions like creating tasks, planning features, and updating status
+After investigation, we've identified the following constraints with Cursor's extension API:
+- Custom chat commands are not supported in Cursor
+- We need to rely primarily on standard VS Code extension APIs
+- UI integration must use standard VS Code UI components
 
-### 2. Enhanced Linear Integration
-- **Full API Utilization**: Leverage more Linear API features including:
-  - Projects management
-  - Cycles/sprints
-  - Labels and priorities
-  - Comments and attachments
-  - User assignments
-  - Custom fields
-- **Two-way Sync**: Changes in Linear reflected in Cursor UI and vice versa
-- **Bulk Operations**: Create/update multiple issues at once
-- **Advanced Filtering**: Filter issues by various criteria (status, assignee, priority, etc.)
+## Core Functionality
 
-### 3. AI-Enhanced Project Management
-- **Smarter Task Generation**: More context-aware task breakdown with code references
-- **Effort Estimation**: AI-suggested story points or time estimates
-- **Dependency Detection**: Suggest task dependencies based on feature requirements
-- **Documentation Generation**: Auto-generate technical specs from feature plans
+### 1. Linear-Centric Project Planning
 
-### 4. Developer Experience Improvements
-- **Context-Aware Suggestions**: Recommend tasks based on current code context
-- **Progress Tracking**: Visual indicators of project progress within Cursor
-- **Notifications**: Alerts for assigned tasks, status changes, etc.
-- **Code-to-Task Linking**: Connect code changes to specific Linear issues
+- **Web-Based Planning Interface**: Rich webview panel for project planning
+  - Project description and requirements input
+  - AI-generated tasks with detailed context
+  - Task customization and organization
+  - Linear integration for pushing tasks
 
-## Implementation Phases
+- **Rich Context Generation**: For each task, generate comprehensive context:
+  - Technical specifications and requirements
+  - Technology stack and framework details
+  - Integration points and API requirements
+  - Data models and structures
+  - UX patterns and design guidelines
+  - Implementation considerations
+  - References to documentation and resources
 
-### Phase 1: Foundation & Basic UI
-- Create UI framework within Cursor
-- Implement task queue functionality
-- Enhance Linear API integration for more issue properties
-- Build settings panel for configuration
+- **Linear as Source of Truth**: All task information stored in Linear
+  - Complete technical context in issue descriptions
+  - Proper categorization with labels, priorities, and estimates
+  - Relationships between tasks maintained in Linear
 
-### Phase 2: Advanced Linear Integration
-- Implement projects and cycles integration
-- Add support for labels, priorities, and custom fields
-- Build two-way sync capabilities
-- Create bulk operations functionality
+### 2. Sidebar Task Management
 
-### Phase 3: AI Enhancements
-- Improve task generation with code context
-- Add effort estimation capabilities
-- Implement dependency detection
-- Build documentation generation features
+- **Linear Task Integration**: Pull tasks and details from Linear
+  - View all project tasks in a hierarchical tree view
+  - Filter and search tasks by various criteria
+  - See task status, priority, and assignee
 
-### Phase 4: Polish & Advanced Features
-- Add notifications system
-- Implement code-to-task linking
-- Create advanced filtering and search
-- Add data visualization for project metrics
+- **Task Interaction Options**:
+  - Copy task context to clipboard for pasting into Cursor AI chat
+  - Export selected tasks as markdown files to `/tasks` directory
+  - Export all tasks as markdown files
+  - Update task status directly from sidebar
+
+- **Flexible Export Functionality**:
+  - Choose export location (default to `/tasks`)
+  - Select specific tasks or export all
+  - Organize exported files by status, priority, or category
+
+### 3. VS Code Integration
+
+- **Command Palette Integration**: Access all functionality through command palette
+  - "Mo: Plan Project" - Open planning interface
+  - "Mo: Show Tasks" - Open sidebar task view
+  - "Mo: Export Tasks" - Export tasks to files
+  - "Mo: Sync with Linear" - Sync latest changes from Linear
+
+- **Status Bar Integration**: Quick access to common actions
+  - Task count indicator
+  - Sync status indicator
+  - Quick access to task view
+
+## Implementation Approaches
+
+### Approach 1: Linear-Centric with Web Planning
+
+- Focus on rich web-based planning experience
+- Store all task information in Linear
+- Provide flexible ways to access and use task context
+- Maintain manual control over task exports and updates
+
+### Approach 2: Hybrid Storage with Automatic Export
+
+- Store task information in both Linear and local files
+- Automatically export tasks to files when created or updated
+- Provide options to customize export behavior
+- Maintain sync between Linear and local files
+
+### Approach 3: Context-Enhanced Linear Integration
+
+- Focus on enhancing Linear issues with rich context
+- Provide specialized views for different aspects of tasks
+- Create custom Linear issue templates for different task types
+- Integrate deeply with Linear's API for advanced functionality
 
 ## UI Components Specification
 
-### Task Queue Panel
-- **Task List**: Sortable, filterable list of pending tasks
-- **Edit Controls**: Ability to modify task details before pushing to Linear
-- **Batch Actions**: Select multiple tasks for bulk operations
-- **Preview**: See how tasks will appear in Linear
+### Planning Interface (Webview)
 
-### Linear Sync Panel
-- **Status Overview**: Quick view of project status, recent activity
-- **Issue Browser**: Browse and search Linear issues
-- **Quick Edit**: Make changes to existing issues
-- **Sync Controls**: Manual and automatic sync options
+- **Project Description**: Input for overall project description
+- **AI Generation Controls**: Trigger and customize AI task generation
+- **Task List**: View, edit, and organize generated tasks
+- **Task Detail Editor**: Rich editor for task context and details
+- **Push Controls**: Configure and push tasks to Linear
 
-### Settings Panel
-- **API Configuration**: Linear API key and team settings
-- **UI Preferences**: Customize appearance and behavior
-- **Automation Settings**: Configure automatic syncs and notifications
-- **AI Configuration**: Adjust AI behavior for task generation
+### Task Sidebar (TreeView)
+
+- **Task Hierarchy**: Organized view of all tasks
+- **Status Filters**: Filter tasks by status, priority, etc.
+- **Task Detail View**: Show complete task details when selected
+- **Action Buttons**: Copy, export, and update tasks
+- **Sync Controls**: Manual sync with Linear
+
+### Export Dialog (Webview)
+
+- **Location Selector**: Choose where to export files
+- **Task Selection**: Select which tasks to export
+- **Organization Options**: How to organize exported files
+- **Format Options**: Choose export format and style
 
 ## Technical Considerations
 
-### Cursor Extension API
-- Investigate available UI capabilities in Cursor extension API
-- Determine best approach for persistent panels vs. command-triggered UI
-- Explore options for background processes and notifications
-
 ### Linear API Usage
-- Review complete Linear GraphQL API documentation
-- Identify optimal query patterns for efficient data fetching
+
+- Use GraphQL API for efficient data fetching
 - Implement proper caching to reduce API calls
-- Handle rate limiting and authentication edge cases
+- Handle rate limiting and authentication
+- Create rich issue descriptions with markdown formatting
+
+### Context Generation
+
+- Generate consistent context across tasks
+- Include project-wide technology and framework information
+- Maintain consistency in terminology and approach
+- Provide sufficient detail for both AI and human developers
 
 ### Data Management
-- Design local storage strategy for task queue
-- Implement conflict resolution for two-way sync
-- Create robust error handling for API failures
-- Consider offline capabilities
+
+- Linear as primary data store
+- Local caching for performance
+- Export functionality for file generation
+- Conflict resolution for concurrent updates
+
+## Implementation Plan
+
+### Phase 1: Core Planning Experience
+
+- Implement web-based planning interface
+- Create AI task generation with rich context
+- Build Linear integration for pushing tasks
+- Develop basic sidebar for viewing tasks
+
+### Phase 2: Enhanced Task Management
+
+- Implement full task detail view in sidebar
+- Create copy to clipboard functionality
+- Build export functionality for task files
+- Add task status update capabilities
+
+### Phase 3: Refinement and Polish
+
+- Enhance context generation for better consistency
+- Improve Linear integration with advanced features
+- Add customization options for exports
+- Create comprehensive documentation
 
 ## Next Steps
-1. Create detailed mockups for UI components
-2. Set up Linear projects to track implementation of these features
-3. Prioritize features based on development complexity and user value
-4. Develop proof-of-concept for key technical challenges 
+
+1. Create detailed technical specifications for each component
+2. Develop proof-of-concept for the planning interface
+3. Implement Linear API integration
+4. Build sidebar task view with basic functionality
+5. Test with real project planning scenarios 

@@ -1,149 +1,65 @@
 {
-  "name": "mo",
+  "name": "mo-plugin-simple",
   "version": "1.0.0",
-  "publisher": "Luis Palomares",
-  "description": "AI-Powered Project Management Cursor IDE Plugin",
-  "main": "dist/extension.js",
-  "icon": "assets/icon.png",
+  "publisher": "luispalomares-dev",
+  "displayName": "Mo - Simple",
+  "description": "Simple version of Mo plugin with improved compatibility",
+  "main": "simple-extension.js",
   "engines": {
     "vscode": "^1.60.0",
     "cursor": ">=0.2.0"
   },
+  "categories": ["Other"],
   "activationEvents": [
-    "onCommand:mo.planProject",
-    "onCommand:mo.pushTasks",
-    "onCommand:mo.viewTasks",
-    "onCommand:mo.showTaskQueue",
-    "onCommand:mo.showLinearSync",
-    "onCommand:mo.showSettings",
-    "onCommand:mo.syncLinear"
+    "onStartupFinished",
+    "onCommand:mo-plugin.showTaskQueue",
+    "onCommand:mo-plugin.showLinearSync",
+    "onCommand:mo-plugin.showSettings",
+    "onCommand:mo-plugin.planProject",
+    "onCommand:mo-plugin.pushTasks"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "mo.planProject",
-        "title": "Mo: Plan Project",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
+        "command": "mo-plugin.showTaskQueue",
+        "title": "Mo: Show Task Queue"
       },
       {
-        "command": "mo.pushTasks",
-        "title": "Mo: Push Tasks to Linear",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
+        "command": "mo-plugin.showLinearSync",
+        "title": "Mo: Show Linear Sync"
       },
       {
-        "command": "mo.viewTasks",
-        "title": "Mo: View Tasks",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
+        "command": "mo-plugin.showSettings",
+        "title": "Mo: Show Settings"
       },
       {
-        "command": "mo.showTaskQueue",
-        "title": "Mo: Show Task Queue",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
+        "command": "mo-plugin.planProject",
+        "title": "Mo: Plan Project"
       },
       {
-        "command": "mo.showLinearSync",
-        "title": "Mo: Show Linear Sync",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
-      },
-      {
-        "command": "mo.showSettings",
-        "title": "Mo: Show Settings",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
-      },
-      {
-        "command": "mo.syncLinear",
-        "title": "Mo: Sync with Linear",
-        "icon": {
-          "light": "assets/icon.png",
-          "dark": "assets/icon.png"
-        }
+        "command": "mo-plugin.pushTasks",
+        "title": "Mo: Push Tasks to Linear"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "mo-sidebar",
-          "title": "Mo",
-          "icon": "assets/sidebar-icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "mo-sidebar": [
-        {
-          "id": "mo-task-queue",
-          "name": "Task Queue"
-        },
-        {
-          "id": "mo-linear-sync",
-          "name": "Linear Sync"
-        },
-        {
-          "id": "mo-settings",
-          "name": "Settings"
-        }
-      ]
-    },
     "menus": {
-      "view/title": [
+      "commandPalette": [
         {
-          "command": "mo.showTaskQueue",
-          "when": "view == mo-task-queue",
-          "group": "navigation"
+          "command": "mo-plugin.showTaskQueue"
         },
         {
-          "command": "mo.showLinearSync",
-          "when": "view == mo-linear-sync",
-          "group": "navigation"
+          "command": "mo-plugin.showLinearSync"
         },
         {
-          "command": "mo.showSettings",
-          "when": "view == mo-settings",
-          "group": "navigation"
+          "command": "mo-plugin.showSettings"
+        },
+        {
+          "command": "mo-plugin.planProject"
+        },
+        {
+          "command": "mo-plugin.pushTasks"
         }
       ]
     }
   },
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "cursor",
-    "extension",
-    "project-management",
-    "linear",
-    "ai"
-  ],
-  "author": "Luis Palomares",
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^16.0.3",
-    "graphql": "^16.8.1",
-    "node-fetch": "^2.6.9"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@types/node-fetch": "^2.6.4",
-    "typescript": "^5.3.3"
-  }
-}
+  "license": "ISC"
+} 

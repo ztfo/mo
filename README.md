@@ -1,49 +1,38 @@
+# Mo: Linear-Centric Project Management for Cursor IDE
+
 <p align="center">
   <img src="assets/icon.png" alt="Mo" width="128" height="128">
 </p>
-
-# Mo: AI-Powered Project Management Cursor Plugin
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version 1.0.0">
   <img src="https://img.shields.io/badge/cursor-compatible-brightgreen" alt="Cursor Compatible">
 </p>
 
-An intelligent project planning and management tool that seamlessly integrates with Cursor IDE and Linear to automate development workflows.
+An intelligent project planning and management tool that seamlessly integrates Linear with Cursor IDE, providing rich context for AI-assisted development.
 
 ## Vision
 
 Mo aims to be your AI-powered project management assistant that lives within your development environment. By bringing project management directly into your IDE and leveraging AI to automate routine tasks, Mo helps developers focus on coding while maintaining excellent project organization.
 
-## Features
+## Core Features
 
-### Current Features
-- **AI-Powered Task Generation**: Break down features into actionable tasks with the help of AI
-- **Enhanced Linear Integration**: 
-  - Create and track tickets in Linear with advanced properties (priority, estimates, etc.)
-  - Filter and query issues with advanced criteria
-  - Support for projects, cycles, labels, and other Linear features
-  - Issue relations and comments
-  - Caching for better performance
-- **Advanced Task Queue System**: 
-  - Review, edit, and reorder tasks before pushing to Linear
-  - Drag-and-drop task reordering
-  - Batch operations (set priority, estimate, delete)
-  - Task persistence between sessions
-  - Task filtering and sorting
-- **UI Interface**: 
-  - Task Queue Panel for managing tasks
-  - Linear Sync Panel for viewing and managing issues
-  - Settings Panel for configuring the plugin
-- **Automated Documentation**: Maintains an up-to-date log of all features and tasks
-- **Seamless Cursor IDE Integration**: Run everything directly within your IDE
+### Linear-Centric Project Planning
+- **Web-Based Planning Interface**: Rich planning experience with AI-powered task generation
+- **Comprehensive Context Generation**: Detailed technical specifications, technology stack information, and implementation guidelines
+- **Linear Integration**: Push tasks with rich context directly to Linear
+- **Consistent Project Structure**: Maintain consistency across tasks with standardized context templates
 
-### Planned Features
-- **Advanced Linear Integration**: Two-way sync, bulk operations, and more
-- **AI-Enhanced Project Management**: Smarter task generation, effort estimation, and dependency detection
-- **Developer Experience Improvements**: Context-aware suggestions, progress tracking, and code-to-task linking
+### Task Management and Context Sharing
+- **Task Sidebar**: View and manage Linear tasks directly in Cursor
+- **Context Copying**: Copy task context to clipboard for pasting into Cursor AI chat
+- **Flexible Export**: Export selected tasks as markdown files to your project
+- **Status Updates**: Update task status directly from the sidebar
 
-See [docs/features/ENHANCED_FEATURES.md](./docs/features/ENHANCED_FEATURES.md) for a detailed roadmap of upcoming features.
+### Seamless Cursor Integration
+- **Command Palette Access**: Trigger all functionality through standard commands
+- **Status Bar Information**: Quick access to tasks and sync status
+- **Standard VS Code APIs**: Built using standard extension APIs for maximum compatibility
 
 ## Getting Started
 
@@ -61,35 +50,60 @@ See [docs/features/ENHANCED_FEATURES.md](./docs/features/ENHANCED_FEATURES.md) f
    ```bash
    npm run build
    ```
-5. Install the extension in Cursor IDE
+5. Package the extension:
+   ```bash
+   npm run package
+   ```
+6. Install the extension in Cursor IDE:
+   - Open Cursor
+   - Go to Extensions view (Ctrl+Shift+X or Cmd+Shift+X)
+   - Click on the "..." menu in the top-right of the Extensions view
+   - Select "Install from VSIX..."
+   - Navigate to the .vsix file in the project directory
+   - Select the file and click "Install"
 
 ## Usage
 
+### Project Planning Workflow
+
+1. **Plan Your Project**:
+   - Open the command palette (Ctrl+Shift+P or Cmd+Shift+P)
+   - Run "Mo: Plan Project"
+   - Enter your project description and requirements
+   - Review and customize AI-generated tasks
+   - Push tasks to Linear
+
+2. **Develop with Context**:
+   - View tasks in the sidebar
+   - Select a task to see its detailed context
+   - Copy context to clipboard
+   - Paste into Cursor AI chat for implementation assistance
+   - Alternatively, export tasks to markdown files for reference
+
+3. **Track Progress**:
+   - Update task status directly from the sidebar
+   - Changes sync back to Linear
+   - Keep your team updated on progress
+
 ### Commands
 
-#### Task Management
-- `/plan-project [feature description]`: Generate tasks for a new feature and add them to the queue
-- `/push-tasks`: Push queued tasks to Linear
-- `/view-tasks`: View the current task queue in text format
+- **Mo: Plan Project**: Open the planning interface
+- **Mo: Show Tasks**: Open the task sidebar
+- **Mo: Export Tasks**: Export tasks to markdown files
+- **Mo: Sync with Linear**: Sync latest changes from Linear
 
-#### UI Panels
-- `/show-task-queue`: Open the Task Queue Panel
-- `/show-linear-sync`: Open the Linear Sync Panel
-- `/show-settings`: Open the Settings Panel
+## Task Context Structure
 
-#### Linear Integration
-- `/sync-linear`: Fetch high-priority issues from Linear
+Each task includes comprehensive context:
 
-### Task Queue Workflow
-
-1. Use `/plan-project` to generate tasks for a feature
-2. Review and edit tasks in the Task Queue Panel (`/show-task-queue`)
-   - Edit individual tasks by clicking the "Edit" button
-   - Reorder tasks by dragging and dropping
-   - Select multiple tasks for batch operations
-   - Sort tasks by different criteria
-3. Push tasks to Linear using the panel or `/push-tasks` command
-4. View and manage Linear issues in the Linear Sync Panel (`/show-linear-sync`)
+- **Overview**: Brief description of the task
+- **Technical Requirements**: Detailed technical specifications
+- **Technology Stack**: Frameworks, libraries, and tools to use
+- **Integration Points**: How this component interacts with others
+- **Data Models**: Relevant data structures and schemas
+- **UX Patterns**: Design patterns and user experience guidelines
+- **Implementation Considerations**: Important notes for implementation
+- **References**: Links to documentation and resources
 
 ## Development
 
@@ -98,6 +112,21 @@ For development, you can use the watch mode:
 ```bash
 npm run watch
 ```
+
+To package the extension:
+
+```bash
+npm run package
+```
+
+## Implementation Plan
+
+See [docs/features/FEATURE_PLANS.md](./docs/features/FEATURE_PLANS.md) for our detailed implementation plan.
+
+## Documentation
+
+- [Enhanced Features](./docs/features/ENHANCED_FEATURES.md): Detailed roadmap of features
+- [UI Specification](./docs/specs/UI_SPEC.md): Technical specifications for UI components
 
 ## License
 

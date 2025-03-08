@@ -1,178 +1,262 @@
-# Mo Plugin UI Specification
+# Mo Plugin UI Specification (Linear-Centric Approach)
 
 ## Overview
 
-This document provides technical specifications for the Mo plugin's UI components within Cursor IDE. The UI will provide a visual interface for managing tasks, syncing with Linear, and configuring the plugin.
+This document provides technical specifications for the Mo plugin's UI components within Cursor IDE, focusing on a Linear-centric approach with flexible context sharing.
 
 ## UI Architecture
 
 ### Integration with Cursor
 
-The Mo plugin UI will be implemented using Cursor's extension API. Based on current understanding of Cursor's extension capabilities, we'll use a combination of:
+The Mo plugin UI will be implemented using standard VS Code extension APIs, which Cursor supports. We'll use a combination of:
 
-1. **Webview Panels**: For rich, interactive UI components
-2. **Status Bar Items**: For quick access to common actions
-3. **Command Palette**: For executing commands
-4. **Notifications**: For alerts and updates
+1. **Webview Panels**: For rich, interactive planning and export interfaces
+2. **Tree Views**: For sidebar task management
+3. **Status Bar Items**: For quick access to common actions
+4. **Command Palette**: For executing commands
 
 ### UI Components Hierarchy
 
 ```
 Mo Plugin UI
-├── Task Queue Panel
+├── Planning Interface (Webview)
+│   ├── Project Description
+│   ├── AI Generation Controls
 │   ├── Task List
-│   ├── Task Editor
-│   ├── Batch Actions
+│   ├── Task Detail Editor
 │   └── Push Controls
-├── Linear Sync Panel
-│   ├── Status Overview
-│   ├── Issue Browser
-│   ├── Quick Edit
-│   └── Sync Controls
-├── Settings Panel
-│   ├── API Configuration
-│   ├── UI Preferences
-│   ├── Automation Settings
-│   └── AI Configuration
+├── Task Sidebar (TreeView)
+│   ├── Task Hierarchy
+│   ├── Status Filters
+│   ├── Task Detail View
+│   └── Action Buttons
+├── Export Dialog (Webview)
+│   ├── Location Selector
+│   ├── Task Selection
+│   ├── Organization Options
+│   └── Format Options
 └── Status Bar
-    ├── Quick Actions
-    ├── Sync Status
-    └── Task Count
+    ├── Task Count
+    └── Sync Status
 ```
 
 ## Component Specifications
 
-### Task Queue Panel
+### Planning Interface (Webview)
 
-**Purpose**: Allow users to review, edit, and manage tasks before pushing to Linear.
-
-**Implementation Details**:
-- Implemented as a Webview panel
-- Persists task data in local storage
-- Provides drag-and-drop reordering of tasks
-- Includes batch editing capabilities
-
-**UI Elements**:
-- Task list with columns for title, description, priority, etc.
-- Edit form for modifying task details
-- Batch action buttons (delete, push, edit)
-- Filter and sort controls
-- Push to Linear button
-
-**Data Flow**:
-1. Tasks generated from AI are added to the queue
-2. User can edit, reorder, or delete tasks
-3. User pushes tasks to Linear individually or in batch
-4. Successful pushes remove tasks from the queue
-
-### Linear Sync Panel
-
-**Purpose**: Provide a visual interface for viewing and managing Linear issues.
+**Purpose**: Provide a rich interface for planning projects and generating tasks with detailed context.
 
 **Implementation Details**:
-- Implemented as a Webview panel
-- Caches Linear data locally for performance
-- Implements pagination for large datasets
-- Provides real-time updates when possible
+- Implemented as a VS Code Webview panel
+- Provides rich text editing for project descriptions
+- Integrates with AI for task generation
+- Allows task customization and organization
+- Pushes tasks to Linear
 
 **UI Elements**:
-- Status overview showing counts by state
-- Issue list with filtering and sorting
-- Quick edit form for modifying issues
-- Sync status indicator
-- Manual sync button
+- Project description input (rich text)
+- AI generation controls (trigger, customize)
+- Task list (view, edit, organize)
+- Task detail editor (rich text with formatting)
+- Push controls (configure Linear properties, push)
 
 **Data Flow**:
-1. Panel loads cached data initially
-2. Background sync updates data periodically
-3. User can trigger manual sync
-4. Changes made in the panel are pushed to Linear
-5. Changes from Linear are pulled into the panel
+1. User enters project description and requirements
+2. AI generates tasks with detailed context
+3. User reviews and customizes tasks
+4. User pushes tasks to Linear
+5. Tasks are stored in Linear with complete context
 
-### Settings Panel
+### Task Sidebar (TreeView)
 
-**Purpose**: Allow users to configure the plugin.
+**Purpose**: Provide quick access to Linear tasks and their context.
 
 **Implementation Details**:
-- Implemented as a Webview panel
-- Saves settings to extension storage
-- Validates input before saving
-- Provides reset to defaults option
+- Implemented using VS Code TreeView API
+- Pulls task data from Linear
+- Shows hierarchical view of tasks
+- Provides task detail view
+- Offers context sharing and export options
 
 **UI Elements**:
-- API configuration form
-- UI preference toggles and selectors
-- Automation settings controls
-- AI configuration options
+- Task hierarchy (organized by status, priority, etc.)
+- Status filters (filter by various criteria)
+- Task detail view (shows when task is selected)
+- Action buttons:
+  - Copy to Clipboard
+  - Export Selected
+  - Export All
+  - Update Status
 
 **Data Flow**:
-1. Panel loads current settings
-2. User modifies settings
-3. Settings are validated and saved
-4. Plugin components are updated to reflect new settings
+1. Sidebar pulls task data from Linear
+2. User navigates and selects tasks
+3. User can copy task context or export to files
+4. User can update task status
+5. Changes sync back to Linear
 
-### Status Bar
+### Export Dialog (Webview)
+
+**Purpose**: Configure and execute task exports to files.
+
+**Implementation Details**:
+- Implemented as a VS Code Webview panel
+- Provides options for export configuration
+- Generates markdown files based on configuration
+- Creates directory structure as specified
+
+**UI Elements**:
+- Location selector (choose export directory)
+- Task selection (select which tasks to export)
+- Organization options (how to organize files)
+- Format options (customize export format)
+- Export button (execute export)
+
+**Data Flow**:
+1. User configures export options
+2. User selects tasks to export
+3. User executes export
+4. Files are generated in specified location
+5. Confirmation is shown to user
+
+### Status Bar Items
 
 **Purpose**: Provide quick access to common actions and status information.
 
 **Implementation Details**:
-- Implemented using Cursor's status bar API
-- Updates dynamically based on plugin state
-- Provides clickable actions
+- Implemented using VS Code StatusBarItem API
+- Shows task count and sync status
+- Provides quick access to task view
 
 **UI Elements**:
-- Quick action buttons (create task, sync, etc.)
+- Task count indicator
 - Sync status indicator
-- Task count badge
+- Quick access buttons
 
 **Data Flow**:
-1. Status bar items update based on plugin state
+1. Status bar items update based on Linear data
 2. User clicks on status bar items to trigger actions
 3. Actions open relevant panels or execute commands
 
 ## UI States and Transitions
 
-### Task Queue States
-1. **Empty**: No tasks in queue
-2. **Populated**: Tasks in queue
-3. **Editing**: User editing a task
-4. **Pushing**: Tasks being pushed to Linear
-5. **Error**: Error occurred during operation
+### Planning Interface States
+1. **Initial**: Empty project description
+2. **Describing**: User entering project description
+3. **Generating**: AI generating tasks
+4. **Reviewing**: User reviewing and customizing tasks
+5. **Pushing**: Tasks being pushed to Linear
+6. **Complete**: Tasks successfully pushed
+7. **Error**: Error occurred during operation
 
-### Linear Sync States
-1. **Disconnected**: Not connected to Linear
-2. **Connecting**: Establishing connection
-3. **Syncing**: Syncing data with Linear
-4. **Synced**: Data in sync with Linear
-5. **Error**: Error occurred during sync
+### Task Sidebar States
+1. **Loading**: Loading tasks from Linear
+2. **Loaded**: Tasks loaded and displayed
+3. **Filtering**: User filtering tasks
+4. **Selecting**: User selecting tasks
+5. **Exporting**: Exporting tasks to files
+6. **Updating**: Updating task status
+7. **Error**: Error occurred during operation
 
-### Settings States
-1. **Viewing**: User viewing settings
-2. **Editing**: User editing settings
-3. **Saving**: Settings being saved
-4. **Error**: Error occurred during save
+### Export Dialog States
+1. **Configuring**: User configuring export options
+2. **Selecting**: User selecting tasks to export
+3. **Exporting**: Generating files
+4. **Complete**: Export successfully completed
+5. **Error**: Error occurred during export
 
 ## Interaction Patterns
 
-### Task Creation Flow
-1. User triggers task creation (via command or UI)
-2. AI generates task suggestions
-3. Tasks appear in Task Queue Panel
-4. User reviews and edits tasks
-5. User pushes tasks to Linear
+### Project Planning Flow
+1. User opens command palette and runs "Mo: Plan Project"
+2. Planning interface opens
+3. User enters project description and requirements
+4. User triggers AI task generation
+5. AI generates tasks with detailed context
+6. User reviews and customizes tasks
+7. User pushes tasks to Linear
 
-### Issue Management Flow
-1. User opens Linear Sync Panel
-2. Panel displays issues from Linear
-3. User filters or searches for specific issues
-4. User edits issue details
-5. Changes are synced back to Linear
+### Task Context Sharing Flow
+1. User opens sidebar task view
+2. User navigates to desired task
+3. User selects task to view details
+4. User copies task context to clipboard
+5. User pastes context into Cursor AI chat
+6. Cursor AI uses context to assist with implementation
 
-### Configuration Flow
-1. User opens Settings Panel
-2. User modifies settings
-3. Settings are validated and saved
-4. Plugin behavior updates accordingly
+### Task Export Flow
+1. User selects tasks in sidebar
+2. User clicks "Export Selected" or "Export All"
+3. Export dialog opens
+4. User configures export options
+5. User executes export
+6. Files are generated in specified location
+7. Confirmation is shown to user
+
+## Task Context Structure
+
+### Technical Context Components
+- **Overview**: Brief description of the task
+- **Technical Requirements**: Detailed technical specifications
+- **Technology Stack**: Frameworks, libraries, and tools to use
+- **Integration Points**: How this component interacts with others
+- **Data Models**: Relevant data structures and schemas
+- **UX Patterns**: Design patterns and user experience guidelines
+- **Implementation Considerations**: Important notes for implementation
+- **References**: Links to documentation and resources
+
+### Example Task Context
+```
+# User Authentication System
+
+## Overview
+Implement a secure user authentication system with login, registration, and password reset functionality.
+
+## Technical Requirements
+- Secure password storage with bcrypt
+- JWT-based authentication
+- Email verification for new accounts
+- Password reset via email
+- Rate limiting for login attempts
+
+## Technology Stack
+- Backend: Node.js with Express
+- Database: MongoDB with Mongoose
+- Authentication: Passport.js with JWT strategy
+- Email: Nodemailer with SendGrid
+
+## Integration Points
+- User service API endpoints
+- Frontend authentication components
+- Email notification system
+- User profile system
+
+## Data Models
+- User model with:
+  - Email (unique)
+  - Password (hashed)
+  - Profile information
+  - Account status
+  - Verification tokens
+
+## UX Patterns
+- Single-page login/register form with tab navigation
+- Inline validation with clear error messages
+- Password strength indicator
+- "Remember me" functionality
+- Redirect to previous page after login
+
+## Implementation Considerations
+- Follow OWASP security best practices
+- Implement proper error handling
+- Use environment variables for sensitive configuration
+- Create comprehensive test suite
+
+## References
+- [Passport.js Documentation](https://www.passportjs.org/)
+- [JWT Best Practices](https://auth0.com/blog/jwt-best-practices/)
+- [OWASP Authentication Guidelines](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/04-Authentication_Testing/README)
+```
 
 ## Visual Design Guidelines
 
@@ -181,11 +265,11 @@ Mo Plugin UI
 - Secondary: #F2C94C
 - Success: #27AE60
 - Error: #EB5757
-- Background: #FFFFFF (light) / #1E1E1E (dark)
-- Text: #333333 (light) / #E1E1E1 (dark)
+- Background: Use VS Code theme colors
+- Text: Use VS Code theme colors
 
 ### Typography
-- Font: System font stack
+- Font: Use VS Code default fonts
 - Headings: 16px, 14px, 12px
 - Body: 12px
 - Monospace: 12px (for code elements)
@@ -206,44 +290,51 @@ Mo Plugin UI
 
 ## Implementation Plan
 
-### Phase 1: Basic Framework
-- Set up Webview infrastructure
-- Implement basic Task Queue Panel
-- Add status bar integration
+### Phase 1: Planning Interface
+- Implement basic webview panel
+- Create project description input
+- Build AI integration for task generation
+- Develop task list and detail editor
+- Implement Linear push functionality
 
-### Phase 2: Linear Integration
-- Implement Linear Sync Panel
-- Add two-way sync capabilities
-- Enhance Task Queue with Linear integration
+### Phase 2: Task Sidebar
+- Create tree view for tasks
+- Implement Linear data fetching
+- Build task detail view
+- Add copy to clipboard functionality
+- Implement status update controls
 
-### Phase 3: Settings and Configuration
-- Implement Settings Panel
-- Add user preference storage
-- Create configuration validation
+### Phase 3: Export Functionality
+- Create export dialog
+- Implement file generation
+- Build directory structure creation
+- Add export configuration options
+- Develop task selection mechanism
 
-### Phase 4: Polish and Refinement
-- Add animations and transitions
-- Implement error handling and recovery
-- Optimize performance
-- Add keyboard shortcuts
+### Phase 4: Polish and Integration
+- Add status bar items
+- Implement keyboard shortcuts
+- Create comprehensive error handling
+- Add progress indicators
+- Improve performance and responsiveness
 
 ## Technical Challenges and Solutions
 
-### Challenge: Limited Cursor Extension API
-**Solution**: Use a combination of available APIs creatively, potentially with workarounds for limitations.
+### Challenge: Rich Text Editing in Webviews
+**Solution**: Use a lightweight rich text editor library compatible with webviews, with message passing for communication.
 
-### Challenge: Performance with Large Datasets
-**Solution**: Implement pagination, virtualized lists, and efficient caching strategies.
+### Challenge: Linear API Integration
+**Solution**: Implement efficient GraphQL queries with proper caching and pagination.
 
-### Challenge: Offline Support
-**Solution**: Use local storage for caching and implement sync queue for offline changes.
+### Challenge: File System Access
+**Solution**: Use VS Code's workspace file system API for file creation and management.
 
-### Challenge: UI Consistency Across Themes
-**Solution**: Use theme-aware styling and test with all Cursor themes.
+### Challenge: Context Generation
+**Solution**: Create structured templates for consistent context generation across tasks.
 
 ## Testing Strategy
 
 - Unit tests for UI logic
 - Integration tests for Linear API interaction
-- Visual regression tests for UI components
+- Manual testing for UI components
 - User testing for workflow validation 

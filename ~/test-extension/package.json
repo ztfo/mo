@@ -1,0 +1,22 @@
+{
+  "name": "test-extension",
+  "version": "0.0.1",
+  "publisher": "test",
+  "displayName": "Test Extension",
+  "description": "A simple test extension",
+  "engines": {
+    "vscode": "^1.60.0",
+    "cursor": ">=0.2.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["*"],
+  "main": "extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "test-extension.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  }
+} 
