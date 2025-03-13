@@ -1,15 +1,23 @@
 {
-  "name": "mo-plugin-simple",
+  "name": "mo-plugin",
   "version": "1.0.0",
   "publisher": "luispalomares-dev",
-  "displayName": "Mo - Simple",
-  "description": "Simple version of Mo plugin with improved compatibility",
-  "main": "simple-extension.js",
+  "displayName": "Mo",
+  "description": "Linear-Centric Project Management for Cursor IDE",
+  "main": "dist/simple-extension.js",
+  "scripts": {
+    "build": "node scripts/build-simple.js",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint . --ext .ts",
+    "start": "node scripts/build-simple.js && echo 'Extension built. Please open the extension in Cursor to test.'"
+  },
   "engines": {
     "vscode": "^1.60.0",
     "cursor": ">=0.2.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "activationEvents": [
     "onStartupFinished",
     "onCommand:mo-plugin.showTaskQueue",
@@ -78,4 +86,4 @@
     }
   },
   "license": "ISC"
-} 
+}

@@ -3,7 +3,12 @@ node_modules/
 package-lock.json
 yarn.lock
 
+# Additional Ignore
+.vscodeignore
+.cursorignore
+
 # Build outputs
+out/
 dist/
 build/
 *.tsbuildinfo
@@ -48,4 +53,4 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .directory
-.Trash-* 
+.Trash-*

@@ -18,6 +18,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
 ## Core Features
 
 ### Linear-Centric Project Planning
+
 - **Web-Based Planning Interface**: Rich planning experience with AI-powered task generation
 - **Comprehensive Context Generation**: Detailed technical specifications, technology stack information, and implementation guidelines
 - **Linear Integration**: Push tasks with rich context directly to Linear
@@ -25,6 +26,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
 - **AI Task Generation**: Leverage Cursor AI to automatically generate tasks based on project descriptions
 
 ### Task Management and Context Sharing
+
 - **Task Sidebar**: View and manage Linear tasks directly in Cursor
 - **Context Copying**: Copy task context to clipboard for pasting into Cursor AI chat
 - **Flexible Export**: Export selected tasks as markdown files with customizable templates and organization
@@ -32,6 +34,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
 - **Advanced Organization**: Organize exported tasks by status, priority, or project
 
 ### Seamless Cursor Integration
+
 - **Command Palette Access**: Trigger all functionality through standard commands
 - **Status Bar Information**: Quick access to tasks and sync status
 - **Standard VS Code APIs**: Built using standard extension APIs for maximum compatibility
@@ -70,6 +73,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
 ### Project Planning Workflow
 
 1. **Plan Your Project**:
+
    - Open the command palette (Ctrl+Shift+P or Cmd+Shift+P)
    - Run "Mo: Plan Project"
    - Enter your project description and requirements
@@ -79,6 +83,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
    - Push tasks to Linear
 
 2. **Develop with Context**:
+
    - View tasks in the sidebar
    - Select a task to see its detailed context
    - Copy context to clipboard
@@ -86,6 +91,7 @@ Mo aims to be your AI-powered project management assistant that lives within you
    - Alternatively, export tasks to markdown files for reference
 
 3. **Export Tasks**:
+
    - Run "Mo: Show Export Dialog" from the command palette
    - Select tasks to export
    - Choose organization type (flat, by status, by priority, by project)
@@ -124,17 +130,27 @@ Each task includes comprehensive context:
 
 ## Development
 
-For development, you can use the watch mode:
+For development, use the following commands:
 
 ```bash
-npm run watch
+# Build the extension
+npm run build
+
+# Start the extension in development mode
+npm run start
 ```
 
-To package the extension:
+### Current Build Status
 
-```bash
-npm run package
-```
+This extension is currently using a simplified build process that provides basic functionality while we work on fixing TypeScript errors in the full implementation. The current version provides minimal functionality with fallbacks for critical features.
+
+#### Known Issues:
+
+1. TypeScript template literal errors in some files (export-dialog.ts, etc.)
+2. Build process currently creates simplified JavaScript files directly
+3. Some advanced features may not be available
+
+We are working on addressing these issues to restore full functionality.
 
 ## Implementation Plan
 
@@ -148,4 +164,4 @@ See [docs/PROJECT_STATUS.md](./docs/PROJECT_STATUS.md) for current implementatio
 
 ## License
 
-ISC 
+ISC
