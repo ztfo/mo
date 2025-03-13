@@ -7,6 +7,7 @@ import { TaskQueue, Task } from './task-queue';
 import { PlanningInterface } from './webviews/planning-interface';
 import { TaskSidebarProvider } from './sidebar/task-sidebar-provider';
 import { TaskDetails } from './webviews/task-details';
+import { ExportDialog } from './webviews/export-dialog';
 
 // Configuration
 const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
@@ -100,10 +101,11 @@ interface LinearState {
 }
 
 // UI Manager instance
-let uiManager = null;
+let uiManager: UIManager | null = null;
 let planningInterface: PlanningInterface | null = null;
 let taskSidebarProvider: TaskSidebarProvider | null = null;
 let taskDetails: TaskDetails | null = null;
+let exportDialog: ExportDialog | null = null;
 
 // Plugin object with methods
 export default {
@@ -178,37 +180,245 @@ export default {
   },
   
   // Handler for exporting tasks to files
-  async exportTasks(tasks: any[], exportDir: string = tasksDir): Promise<void> {
+  async exportTasks(tasks: any[], options: any = {}): Promise<void> {
     try {
-      // Create tasks directory if it doesn't exist
-      if (!fs.existsSync(exportDir)) {
-        fs.mkdirSync(exportDir, { recursive: true });
+      const {
+        exportPath = tasksDir,
+        organizationType = 'flat',
+        templateType = 'default',
+        sections = {
+          overview: true,
+          requirements: true,
+          implementation: true,
+          references: true,
+          metadata: true
+        },
+        fileNaming = 'id-title'
+      } = options;
+      
+      // Create export directory if it doesn't exist
+      if (!fs.existsSync(exportPath)) {
+        fs.mkdirSync(exportPath, { recursive: true });
       }
       
-      // Export each task to a file
-      for (const task of tasks) {
-        const fileName = `${task.identifier || `task-${Date.now()}`}.md`;
-        const filePath = path.join(exportDir, fileName);
+      // Create subdirectories and organize tasks
+      const tasksByDirectory = new Map<string, any[]>();
+      
+      if (organizationType === 'flat') {
+        // All tasks in the root directory
+        tasksByDirectory.set('', tasks);
+      } else if (organizationType === 'status') {
+        // Organize by status
+        tasks.forEach(task => {
+          const status = task.state?.name || 'Unknown';
+          if (!tasksByDirectory.has(status)) {
+            tasksByDirectory.set(status, []);
+          }
+          tasksByDirectory.get(status)!.push(task);
+        });
+      } else if (organizationType === 'priority') {
+        // Organize by priority
+        const priorityNames: Record<string, string> = {
+          '1': 'Priority 1 (Urgent)',
+          '2': 'Priority 2 (High)',
+          '3': 'Priority 3 (Medium)',
+          '4': 'Priority 4 (Low)',
+          '5': 'Priority 5 (Lowest)',
+        };
         
-        // Format task context
-        let context = `# ${task.title}\n\n`;
-        context += `## Overview\n${task.description}\n\n`;
-        context += `## Technical Requirements\n`;
-        context += `- Priority: ${task.priority || 'None'}\n`;
-        context += `- Estimate: ${task.estimate || 'None'}\n`;
-        context += `- State: ${task.state?.name || 'Unknown'}\n\n`;
+        tasks.forEach(task => {
+          const priorityKey = task.priority?.toString() || 'Unknown';
+          const priority = priorityNames[priorityKey] || `Priority ${priorityKey}`;
+          if (!tasksByDirectory.has(priority)) {
+            tasksByDirectory.set(priority, []);
+          }
+          tasksByDirectory.get(priority)!.push(task);
+        });
+      } else if (organizationType === 'project') {
+        // Organize by project
+        tasks.forEach(task => {
+          const project = task.project?.name || 'No Project';
+          if (!tasksByDirectory.has(project)) {
+            tasksByDirectory.set(project, []);
+          }
+          tasksByDirectory.get(project)!.push(task);
+        });
+      }
+      
+      // Create directories and export tasks
+      for (const [dirName, dirTasks] of tasksByDirectory.entries()) {
+        const dirPath = dirName ? path.join(exportPath, dirName) : exportPath;
         
-        if (task.identifier && task.url) {
-          context += `## Linear Issue\n${task.identifier} - ${task.url}\n`;
+        // Create directory if needed
+        if (dirName && !fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
         }
         
-        // Write to file
-        fs.writeFileSync(filePath, context);
+        // Export each task
+        for (const task of dirTasks) {
+          // Generate file name
+          let fileName: string;
+          if (fileNaming === 'id') {
+            fileName = task.identifier || `task-${task.id}`;
+          } else if (fileNaming === 'title') {
+            fileName = this.slugify(task.title);
+          } else {
+            fileName = (task.identifier || `task-${task.id}`) + '-' + this.slugify(task.title);
+          }
+          
+          // Add markdown extension
+          fileName = `${fileName}.md`;
+          
+          // Create full file path
+          const filePath = path.join(dirPath, fileName);
+          
+          // Generate content based on template
+          let content: string;
+          if (templateType === 'minimal') {
+            content = this.generateMinimalTemplate(task, sections);
+          } else if (templateType === 'detailed') {
+            content = this.generateDetailedTemplate(task, sections);
+          } else {
+            content = this.generateDefaultTemplate(task, sections);
+          }
+          
+          // Write to file
+          fs.writeFileSync(filePath, content);
+        }
       }
     } catch (error) {
       console.error('Failed to export tasks:', error);
       throw error;
     }
+  },
+  
+  // Helper method to generate default template
+  generateDefaultTemplate(task: any, sections: any): string {
+    let content = `# ${task.title}\n\n`;
+    
+    if (sections.overview) {
+      content += `## Overview\n${task.description || 'No description provided.'}\n\n`;
+    }
+    
+    if (sections.requirements) {
+      content += `## Technical Requirements\n`;
+      content += `- Priority: ${task.priority || 'None'}\n`;
+      content += `- Estimate: ${task.estimate || 'None'}\n`;
+      content += `- Status: ${task.state?.name || 'Unknown'}\n`;
+      if (task.labels && task.labels.nodes && task.labels.nodes.length > 0) {
+        content += `- Labels: ${task.labels.nodes.map((l: any) => l.name).join(', ')}\n`;
+      }
+      content += '\n';
+    }
+    
+    if (sections.implementation) {
+      content += `## Implementation Details\n`;
+      content += `*No implementation details provided.*\n\n`;
+    }
+    
+    if (sections.references) {
+      content += `## References\n`;
+      content += `*No references provided.*\n\n`;
+    }
+    
+    if (sections.metadata) {
+      content += `---\n\n`;
+      if (task.identifier) {
+        content += `*Task ID: ${task.identifier}*\n`;
+      }
+      if (task.url) {
+        content += `*Linear URL: ${task.url}*\n`;
+      }
+      content += `*Exported on: ${new Date().toISOString()}*\n`;
+    }
+    
+    return content;
+  },
+  
+  // Helper method to generate minimal template
+  generateMinimalTemplate(task: any, sections: any): string {
+    let content = `# ${task.title}\n\n`;
+    content += `${task.description || 'No description provided.'}\n\n`;
+    content += `Priority: ${task.priority || 'None'} | `;
+    content += `Estimate: ${task.estimate || 'None'} | `;
+    content += `Status: ${task.state?.name || 'Unknown'}\n\n`;
+    
+    if (task.identifier && task.url) {
+      content += `[${task.identifier}](${task.url})\n`;
+    }
+    
+    return content;
+  },
+  
+  // Helper method to generate detailed template
+  generateDetailedTemplate(task: any, sections: any): string {
+    let content = `# ${task.title}\n\n`;
+    
+    if (sections.overview) {
+      content += `## Overview\n${task.description || 'No description provided.'}\n\n`;
+    }
+    
+    if (sections.requirements) {
+      content += `## Technical Requirements\n`;
+      content += `### Priority\n${task.priority || 'None'}\n\n`;
+      content += `### Estimate\n${task.estimate || 'None'} points\n\n`;
+      content += `### Status\n${task.state?.name || 'Unknown'}\n\n`;
+      
+      if (task.labels && task.labels.nodes && task.labels.nodes.length > 0) {
+        content += `### Labels\n`;
+        task.labels.nodes.forEach((label: any) => {
+          content += `- ${label.name}\n`;
+        });
+        content += '\n';
+      }
+    }
+    
+    if (sections.implementation) {
+      content += `## Implementation Details\n\n`;
+      content += `### Approach\n*No approach provided.*\n\n`;
+      content += `### Technical Considerations\n*No technical considerations provided.*\n\n`;
+      content += `### Potential Challenges\n*No potential challenges identified.*\n\n`;
+    }
+    
+    if (sections.references) {
+      content += `## References\n\n`;
+      content += `### Documentation\n*No documentation references provided.*\n\n`;
+      content += `### Related Tasks\n*No related tasks provided.*\n\n`;
+      content += `### External Resources\n*No external resources provided.*\n\n`;
+    }
+    
+    if (sections.metadata) {
+      content += `---\n\n`;
+      content += `**Metadata**\n\n`;
+      if (task.identifier) {
+        content += `- Task ID: ${task.identifier}\n`;
+      }
+      if (task.url) {
+        content += `- Linear URL: ${task.url}\n`;
+      }
+      if (task.createdAt) {
+        content += `- Created: ${new Date(task.createdAt).toLocaleString()}\n`;
+      }
+      if (task.updatedAt) {
+        content += `- Updated: ${new Date(task.updatedAt).toLocaleString()}\n`;
+      }
+      content += `- Exported: ${new Date().toLocaleString()}\n`;
+    }
+    
+    return content;
+  },
+  
+  // Helper method to slugify text for file names
+  slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '')
+      .substring(0, 50); // Limit length
   }
 };
 
@@ -223,11 +433,16 @@ export function activate(context: CursorContext): void {
   // Initialize task queue
   const taskQueue = TaskQueue.getInstance();
   
-  // Initialize planning interface
-  planningInterface = new PlanningInterface(ui);
+  // Initialize planning interface with Cursor context for AI
+  planningInterface = new PlanningInterface(ui, context);
   
   // Initialize task details
   taskDetails = new TaskDetails(ui);
+  
+  // Initialize export dialog
+  exportDialog = new ExportDialog(ui, (tasks, options) => {
+    return exports.default.exportTasks(tasks, options);
+  });
   
   // Register commands for the command palette (Ctrl+Shift+P or Cmd+Shift+P)
   if (context.commands) {
@@ -337,7 +552,7 @@ export function activate(context: CursorContext): void {
       })
     );
     
-    // Export tasks command
+    // Export tasks command (basic version)
     context.subscriptions.push(
       context.commands.registerCommand("mo-plugin.exportTasks", async () => {
         try {
@@ -361,6 +576,36 @@ export function activate(context: CursorContext): void {
           console.error('Failed to export tasks:', error);
           if (context.ui) {
             context.ui.showErrorMessage("Failed to export tasks.");
+          }
+        }
+      })
+    );
+    
+    // Show export dialog command (enhanced version)
+    context.subscriptions.push(
+      context.commands.registerCommand("mo-plugin.showExportDialog", async () => {
+        try {
+          // Get tasks from Linear
+          const tasks = await exports.default.refreshLinearIssues();
+          
+          if (tasks.length === 0) {
+            if (context.ui) {
+              context.ui.showWarningMessage("No tasks available to export.");
+            }
+            return;
+          }
+          
+          // Show export dialog
+          if (exportDialog) {
+            exportDialog.show(tasks);
+            if (context.ui) {
+              context.ui.showInformationMessage("Export dialog opened.");
+            }
+          }
+        } catch (error) {
+          console.error('Failed to show export dialog:', error);
+          if (context.ui) {
+            context.ui.showErrorMessage("Failed to open export dialog.");
           }
         }
       })
@@ -484,7 +729,7 @@ Format the response as a JSON array of tasks:
 _Planned: ${timestamp}_
 
 ### Tasks:
-${parsedTasks.map(task => `- [ ] ${task.title} (${task.estimate} points)`).join('\n')}
+${parsedTasks.map((task: any) => `- [ ] ${task.title} (${task.estimate} points)`).join('\n')}
 
 ---
 `;
@@ -554,6 +799,45 @@ ${taskList}
 
 Use \`/push-tasks\` to push selected tasks to Linear or \`/show-task-queue\` to open the task queue panel.
         `;
+      })
+    );
+    
+    // Export tasks chat command
+    context.subscriptions.push(
+      context.chat.registerCommand("export-tasks", async () => {
+        try {
+          // Get tasks from Linear
+          const tasks = await exports.default.refreshLinearIssues();
+          
+          if (tasks.length === 0) {
+            return "No tasks available to export.";
+          }
+          
+          // Export tasks to default location
+          await exports.default.exportTasks(tasks);
+          
+          return `Successfully exported ${tasks.length} tasks to ${tasksDir}. Use \`/show-export-dialog\` for more advanced export options.`;
+        } catch (error) {
+          console.error('Failed to export tasks:', error);
+          return "Failed to export tasks. Please check the logs for more information.";
+        }
+      })
+    );
+    
+    // Show export dialog chat command
+    context.subscriptions.push(
+      context.chat.registerCommand("show-export-dialog", async () => {
+        try {
+          // Pass to the command handler
+          if (context.commands) {
+            context.commands.registerCommand("mo-plugin.showExportDialog", () => {});
+          }
+          
+          return "Showing export dialog. Please use the dialog to configure and export tasks.";
+        } catch (error) {
+          console.error('Failed to show export dialog:', error);
+          return "Failed to show export dialog. Please check the logs for more information.";
+        }
       })
     );
   }

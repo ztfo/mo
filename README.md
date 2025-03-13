@@ -22,17 +22,20 @@ Mo aims to be your AI-powered project management assistant that lives within you
 - **Comprehensive Context Generation**: Detailed technical specifications, technology stack information, and implementation guidelines
 - **Linear Integration**: Push tasks with rich context directly to Linear
 - **Consistent Project Structure**: Maintain consistency across tasks with standardized context templates
+- **AI Task Generation**: Leverage Cursor AI to automatically generate tasks based on project descriptions
 
 ### Task Management and Context Sharing
 - **Task Sidebar**: View and manage Linear tasks directly in Cursor
 - **Context Copying**: Copy task context to clipboard for pasting into Cursor AI chat
-- **Flexible Export**: Export selected tasks as markdown files to your project
+- **Flexible Export**: Export selected tasks as markdown files with customizable templates and organization
 - **Status Updates**: Update task status directly from the sidebar
+- **Advanced Organization**: Organize exported tasks by status, priority, or project
 
 ### Seamless Cursor Integration
 - **Command Palette Access**: Trigger all functionality through standard commands
 - **Status Bar Information**: Quick access to tasks and sync status
 - **Standard VS Code APIs**: Built using standard extension APIs for maximum compatibility
+- **Cursor AI Integration**: Leverage Cursor's AI capabilities for task generation
 
 ## Getting Started
 
@@ -70,6 +73,8 @@ Mo aims to be your AI-powered project management assistant that lives within you
    - Open the command palette (Ctrl+Shift+P or Cmd+Shift+P)
    - Run "Mo: Plan Project"
    - Enter your project description and requirements
+   - Configure generation options (detail level, focus areas, tech stack)
+   - Click "Generate Tasks" to use Cursor AI for task generation
    - Review and customize AI-generated tasks
    - Push tasks to Linear
 
@@ -80,17 +85,29 @@ Mo aims to be your AI-powered project management assistant that lives within you
    - Paste into Cursor AI chat for implementation assistance
    - Alternatively, export tasks to markdown files for reference
 
-3. **Track Progress**:
+3. **Export Tasks**:
+   - Run "Mo: Show Export Dialog" from the command palette
+   - Select tasks to export
+   - Choose organization type (flat, by status, by priority, by project)
+   - Select template (default, minimal, detailed)
+   - Customize sections to include
+   - Preview the export
+   - Set export location and click "Export Tasks"
+
+4. **Track Progress**:
    - Update task status directly from the sidebar
+   - Run "Mo: Sync with Linear" to get latest updates
    - Changes sync back to Linear
    - Keep your team updated on progress
 
 ### Commands
 
 - **Mo: Plan Project**: Open the planning interface
-- **Mo: Show Tasks**: Open the task sidebar
-- **Mo: Export Tasks**: Export tasks to markdown files
+- **Mo: Show Task Queue**: Open the task sidebar
+- **Mo: Show Export Dialog**: Open the export dialog for task export customization
 - **Mo: Sync with Linear**: Sync latest changes from Linear
+- **Mo: Push Tasks to Linear**: Push tasks from planning interface to Linear
+- **Mo: Show Settings**: Configure plugin settings
 
 ## Task Context Structure
 
@@ -121,12 +138,13 @@ npm run package
 
 ## Implementation Plan
 
-See [docs/features/FEATURE_PLANS.md](./docs/features/FEATURE_PLANS.md) for our detailed implementation plan.
+See [docs/PROJECT_STATUS.md](./docs/PROJECT_STATUS.md) for current implementation status and our detailed implementation plan.
 
 ## Documentation
 
-- [Enhanced Features](./docs/features/ENHANCED_FEATURES.md): Detailed roadmap of features
-- [UI Specification](./docs/specs/UI_SPEC.md): Technical specifications for UI components
+- [Project Status](./docs/PROJECT_STATUS.md): Current implementation status and roadmap
+- [Implementation Notes](./docs/IMPLEMENTATION_NOTES.md): Technical implementation details
+- [Testing Guide](./docs/TESTING.md): Guide for testing the plugin features
 
 ## License
 

@@ -16,7 +16,9 @@
     "onCommand:mo-plugin.showLinearSync",
     "onCommand:mo-plugin.showSettings",
     "onCommand:mo-plugin.planProject",
-    "onCommand:mo-plugin.pushTasks"
+    "onCommand:mo-plugin.pushTasks",
+    "onCommand:mo-plugin.showExportDialog",
+    "onCommand:mo-plugin.syncWithLinear"
   ],
   "contributes": {
     "commands": [
@@ -39,6 +41,14 @@
       {
         "command": "mo-plugin.pushTasks",
         "title": "Mo: Push Tasks to Linear"
+      },
+      {
+        "command": "mo-plugin.showExportDialog",
+        "title": "Mo: Show Export Dialog"
+      },
+      {
+        "command": "mo-plugin.syncWithLinear",
+        "title": "Mo: Sync with Linear"
       }
     ],
     "menus": {
@@ -57,6 +67,12 @@
         },
         {
           "command": "mo-plugin.pushTasks"
+        },
+        {
+          "command": "mo-plugin.showExportDialog"
+        },
+        {
+          "command": "mo-plugin.syncWithLinear"
         }
       ]
     }

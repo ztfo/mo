@@ -10,10 +10,12 @@ export class PlanningInterface {
   private webview: CursorWebview | null = null;
   private ui: CursorUI;
   private taskQueue: TaskQueue;
+  private cursorContext: any; // Context from Cursor with AI capabilities
   
-  constructor(ui: CursorUI) {
+  constructor(ui: CursorUI, cursorContext?: any) {
     this.ui = ui;
     this.taskQueue = TaskQueue.getInstance();
+    this.cursorContext = cursorContext;
   }
   
   /**
@@ -184,6 +186,50 @@ export class PlanningInterface {
             border-radius: 4px;
             margin-bottom: 20px;
           }
+          
+          /* Options panel styles */
+          .options-panel {
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+          }
+          
+          .options-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+          }
+          
+          .options-content {
+            margin-top: 10px;
+          }
+          
+          .option-group {
+            margin-bottom: 10px;
+          }
+          
+          .option-group h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+          }
+          
+          .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+          }
+          
+          .checkbox-item {
+            display: flex;
+            align-items: center;
+          }
+          
+          .checkbox-item input {
+            width: auto;
+            margin-right: 5px;
+          }
         </style>
       </head>
       <body>
@@ -193,6 +239,58 @@ export class PlanningInterface {
           <div class="form-group">
             <label for="project-description">Project Description</label>
             <textarea id="project-description" placeholder="Describe your project or feature in detail..."></textarea>
+          </div>
+          
+          <div class="options-panel">
+            <div class="options-header" id="options-toggle">
+              <h3>Generation Options</h3>
+              <span>▼</span>
+            </div>
+            <div class="options-content" id="options-content">
+              <div class="option-group">
+                <h4>Detail Level</h4>
+                <select id="detail-level">
+                  <option value="low">Low - Basic task information</option>
+                  <option value="medium" selected>Medium - Comprehensive task details</option>
+                  <option value="high">High - Extensive technical specifications</option>
+                </select>
+              </div>
+              
+              <div class="option-group">
+                <h4>Focus Areas</h4>
+                <div class="checkbox-group">
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-backend" checked>
+                    <label for="focus-backend">Backend</label>
+                  </div>
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-frontend" checked>
+                    <label for="focus-frontend">Frontend</label>
+                  </div>
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-database" checked>
+                    <label for="focus-database">Database</label>
+                  </div>
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-testing" checked>
+                    <label for="focus-testing">Testing</label>
+                  </div>
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-docs" checked>
+                    <label for="focus-docs">Documentation</label>
+                  </div>
+                  <div class="checkbox-item">
+                    <input type="checkbox" id="focus-devops">
+                    <label for="focus-devops">DevOps</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="option-group">
+                <h4>Tech Stack</h4>
+                <input type="text" id="tech-stack" placeholder="e.g., React, Node.js, PostgreSQL">
+              </div>
+            </div>
           </div>
           
           <div class="form-group">
@@ -229,9 +327,28 @@ export class PlanningInterface {
             const loadingElement = document.getElementById('loading');
             const errorMessage = document.getElementById('error-message');
             const successMessage = document.getElementById('success-message');
+            const optionsToggle = document.getElementById('options-toggle');
+            const optionsContent = document.getElementById('options-content');
+            const detailLevel = document.getElementById('detail-level');
+            const techStack = document.getElementById('tech-stack');
+            
+            // Focus area checkboxes
+            const focusBackend = document.getElementById('focus-backend');
+            const focusFrontend = document.getElementById('focus-frontend');
+            const focusDatabase = document.getElementById('focus-database');
+            const focusTesting = document.getElementById('focus-testing');
+            const focusDocs = document.getElementById('focus-docs');
+            const focusDevops = document.getElementById('focus-devops');
             
             // Store generated tasks
             let generatedTasks = [];
+            
+            // Toggle options panel
+            optionsToggle.addEventListener('click', () => {
+              const isHidden = optionsContent.style.display === 'none';
+              optionsContent.style.display = isHidden ? 'block' : 'none';
+              optionsToggle.querySelector('span').textContent = isHidden ? '▼' : '▶';
+            });
             
             // Post message to extension
             function postMessage(message) {
@@ -265,6 +382,21 @@ export class PlanningInterface {
                 return;
               }
               
+              // Get option values
+              const options = {
+                detailLevel: detailLevel.value,
+                focusAreas: [],
+                techStack: techStack.value.trim()
+              };
+              
+              // Add focus areas
+              if (focusBackend.checked) options.focusAreas.push('backend');
+              if (focusFrontend.checked) options.focusAreas.push('frontend');
+              if (focusDatabase.checked) options.focusAreas.push('database');
+              if (focusTesting.checked) options.focusAreas.push('testing');
+              if (focusDocs.checked) options.focusAreas.push('documentation');
+              if (focusDevops.checked) options.focusAreas.push('devops');
+              
               // Show loading
               loadingElement.classList.remove('hidden');
               taskContainer.classList.add('hidden');
@@ -272,7 +404,8 @@ export class PlanningInterface {
               // Send message to extension
               postMessage({
                 command: 'generateTasks',
-                description
+                description,
+                options
               });
             });
             
@@ -379,7 +512,7 @@ export class PlanningInterface {
   private handleMessage(message: any): void {
     switch (message.command) {
       case 'generateTasks':
-        this.generateTasks(message.description);
+        this.generateTasks(message.description, message.options);
         break;
         
       case 'pushToLinear':
@@ -395,30 +528,53 @@ export class PlanningInterface {
   /**
    * Generate tasks from a project description
    */
-  private async generateTasks(description: string): Promise<void> {
+  private async generateTasks(description: string, options: any = {}): Promise<void> {
     try {
-      // For now, generate some sample tasks
-      // In a real implementation, this would call an AI service
-      const tasks = [
-        {
-          title: `Implement ${description} - Backend`,
-          description: `Create the backend API for ${description} with proper authentication and validation.`,
-          priority: 2,
-          estimate: 3
-        },
-        {
-          title: `Implement ${description} - Frontend`,
-          description: `Create the frontend UI for ${description} with responsive design and proper error handling.`,
-          priority: 2,
-          estimate: 2
-        },
-        {
-          title: `Write tests for ${description}`,
-          description: `Create comprehensive tests for ${description} including unit tests and integration tests.`,
-          priority: 3,
-          estimate: 1
+      if (!this.cursorContext || !this.cursorContext.chat || !this.cursorContext.chat.askAI) {
+        // Fall back to mock implementation if AI API is not available
+        console.warn('Cursor AI API not available, using mock implementation');
+        
+        // Generate some sample tasks
+        const tasks = [
+          {
+            title: `Implement ${description} - Backend`,
+            description: `Create the backend API for ${description} with proper authentication and validation.`,
+            priority: 2,
+            estimate: 3
+          },
+          {
+            title: `Implement ${description} - Frontend`,
+            description: `Create the frontend UI for ${description} with responsive design and proper error handling.`,
+            priority: 2,
+            estimate: 2
+          },
+          {
+            title: `Write tests for ${description}`,
+            description: `Create comprehensive tests for ${description} including unit tests and integration tests.`,
+            priority: 3,
+            estimate: 1
+          }
+        ];
+        
+        // Send tasks back to webview
+        if (this.webview) {
+          this.webview.postMessage({
+            command: 'tasksGenerated',
+            tasks
+          });
         }
-      ];
+        
+        return;
+      }
+      
+      // Create detailed prompt based on options
+      const prompt = this.createTaskGenerationPrompt(description, options);
+      
+      // Call Cursor AI API
+      const response = await this.cursorContext.chat.askAI(prompt);
+      
+      // Parse the response
+      const tasks = this.parseAIResponse(response);
       
       // Send tasks back to webview
       if (this.webview) {
@@ -434,9 +590,103 @@ export class PlanningInterface {
       if (this.webview) {
         this.webview.postMessage({
           command: 'error',
-          message: 'Failed to generate tasks'
+          message: 'Failed to generate tasks: ' + (error instanceof Error ? error.message : String(error))
         });
       }
+    }
+  }
+  
+  /**
+   * Create a prompt for AI task generation
+   */
+  private createTaskGenerationPrompt(description: string, options: any = {}): string {
+    const { detailLevel = 'medium', focusAreas = [], techStack = '' } = options;
+    
+    // Build focus areas string
+    const focusAreasStr = focusAreas.length > 0 
+      ? `Focus on these areas: ${focusAreas.join(', ')}.` 
+      : '';
+    
+    // Build tech stack string
+    const techStackStr = techStack 
+      ? `The project uses the following technologies: ${techStack}.` 
+      : '';
+    
+    // Determine detail level specifications
+    let detailSpec = '';
+    if (detailLevel === 'low') {
+      detailSpec = 'Provide basic task information with brief descriptions.';
+    } else if (detailLevel === 'high') {
+      detailSpec = 'Provide extensive technical specifications with detailed implementation guidance, architecture considerations, and potential challenges.';
+    } else {
+      detailSpec = 'Provide comprehensive task details including clear technical requirements and implementation approach.';
+    }
+    
+    // Create the prompt
+    return `
+Generate a list of tasks for implementing the following feature:
+${description}
+
+${techStackStr}
+${focusAreasStr}
+${detailSpec}
+
+Each task should include:
+1. A clear, concise title
+2. A detailed description with technical specifications
+3. A priority (1-5, where 1 is highest)
+4. An estimate (1-10 points)
+
+For the description, include:
+- Technical requirements
+- Implementation approach
+- Integration points
+- Potential challenges
+- Any relevant references
+
+Format the response as a JSON array of tasks:
+[
+  {
+    "title": "Task title",
+    "description": "Detailed technical description with markdown formatting",
+    "priority": 2,
+    "estimate": 3
+  },
+  ...
+]
+
+Please ensure the JSON is valid and properly formatted.
+`;
+  }
+  
+  /**
+   * Parse the AI response to extract tasks
+   */
+  private parseAIResponse(response: string): any[] {
+    try {
+      // Extract JSON array from response
+      const jsonMatch = response.match(/\[\s*\{[\s\S]*\}\s*\]/);
+      if (!jsonMatch) {
+        throw new Error("Could not extract JSON from response");
+      }
+      
+      const parsedTasks = JSON.parse(jsonMatch[0]);
+      
+      // Validate tasks
+      if (!Array.isArray(parsedTasks)) {
+        throw new Error("Response is not an array");
+      }
+      
+      // Validate and normalize each task
+      return parsedTasks.map(task => ({
+        title: task.title || 'Untitled Task',
+        description: task.description || '',
+        priority: typeof task.priority === 'number' ? task.priority : undefined,
+        estimate: typeof task.estimate === 'number' ? task.estimate : undefined
+      }));
+    } catch (error) {
+      console.error('Failed to parse AI response:', error);
+      throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
   
