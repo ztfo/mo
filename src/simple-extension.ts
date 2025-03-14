@@ -1,16 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import {
-  activate as activateFull,
-  deactivate as deactivateFull,
-} from "./extension";
 
 // Configuration
-const UPDATE_INTERVAL = 300000; // 5 minutes in milliseconds
-
-// Paths
-const repoPath = process.cwd();
 const settingsPath = path.join(os.homedir(), ".mo-settings.json");
 
 // Settings storage
@@ -35,198 +27,140 @@ try {
   console.error("Failed to load settings from disk:", error);
 }
 
-// Types for Cursor extension API
-interface CursorContext {
-  subscriptions: Array<{ dispose: () => void }>;
-  chat: {
-    registerCommand: (
-      command: string,
-      handler: CommandHandler
-    ) => { dispose: () => void };
-    askAI: (prompt: string) => Promise<string>;
-  };
-}
+// Main extension activation function
+export function activate(context) {
+  console.log("Mo Plugin activated!");
 
-interface CursorCommandContext {
-  chat: {
-    askAI: (prompt: string) => Promise<string>;
-  };
-}
+  // Register commands with proper VS Code/Cursor command system
+  const commands = [
+    {
+      id: "mo-plugin.showTaskQueue",
+      handler: () => showTaskQueue(),
+      desc: "Show Task Queue",
+    },
+    {
+      id: "mo-plugin.planProject",
+      handler: () => planProject(),
+      desc: "Plan Project",
+    },
+    {
+      id: "mo-plugin.showLinearSync",
+      handler: () => showLinearSync(),
+      desc: "Show Linear Sync",
+    },
+    {
+      id: "mo-plugin.showSettings",
+      handler: () => showSettings(),
+      desc: "Show Settings",
+    },
+    {
+      id: "mo-plugin.pushTasks",
+      handler: () => pushTasks(),
+      desc: "Push Tasks to Linear",
+    },
+    {
+      id: "mo-plugin.showExportDialog",
+      handler: () => showExportDialog(),
+      desc: "Show Export Dialog",
+    },
+    {
+      id: "mo-plugin.syncWithLinear",
+      handler: () => syncWithLinear(),
+      desc: "Sync with Linear",
+    },
+    {
+      id: "mo-plugin.viewTaskDetails",
+      handler: (task) => viewTaskDetails(task),
+      desc: "View Task Details",
+    },
+  ];
 
-type CommandHandler = (
-  ctx: CursorCommandContext,
-  input: string
-) => Promise<string>;
-
-// Main extension activation function that will proxy to the full implementation
-export function activate(context: CursorContext) {
-  console.log("Mo Plugin activated! Attempting to use full implementation...");
-
-  try {
-    // Forward to the full implementation
-    return activateFull(context);
-  } catch (error) {
-    console.error("Error activating full implementation:", error);
-    console.log("Falling back to simple implementation");
-
-    // Register all commands with fallback handlers
-    const commands = [
-      { id: "mo-plugin.showTaskQueue", handler: handleShowTaskQueue },
-      { id: "mo-plugin.planProject", handler: handlePlanProject },
-      { id: "mo-plugin.showLinearSync", handler: handleShowLinearSync },
-      { id: "mo-plugin.showSettings", handler: handleShowSettings },
-      { id: "mo-plugin.pushTasks", handler: handlePushTasks },
-      { id: "mo-plugin.showExportDialog", handler: handleShowExportDialog },
-      { id: "mo-plugin.syncWithLinear", handler: handleSyncWithLinear },
-    ];
-
-    // Register all commands
-    commands.forEach((cmd) => {
-      const command = context.chat.registerCommand(cmd.id, cmd.handler);
+  // Register all commands
+  for (const cmd of commands) {
+    // Try to use VSCode-style registration if available
+    if (context.commands && context.commands.registerCommand) {
+      const command = context.commands.registerCommand(cmd.id, cmd.handler);
       context.subscriptions.push(command);
-    });
-
-    // Return API object
-    return {
-      showTaskQueue: () =>
-        console.log("Task Queue requested (simple implementation)"),
-      showLinearSync: () =>
-        console.log("Linear Sync requested (simple implementation)"),
-      showSettings: () =>
-        console.log("Settings requested (simple implementation)"),
-      planProject: () =>
-        console.log("Plan Project requested (simple implementation)"),
-      pushTasks: () =>
-        console.log("Push Tasks requested (simple implementation)"),
-      showExportDialog: () =>
-        console.log("Export Dialog requested (simple implementation)"),
-      syncWithLinear: () =>
-        console.log("Sync with Linear requested (simple implementation)"),
-    };
+      console.log(`Registered VSCode command: ${cmd.id}`);
+    }
+    // Fallback to Cursor chat-style registration
+    else if (context.chat && context.chat.registerCommand) {
+      const command = context.chat.registerCommand(
+        cmd.id,
+        async (ctx, input) => {
+          return `The ${cmd.desc} feature is currently being loaded. Please try again in a moment.`;
+        }
+      );
+      context.subscriptions.push(command);
+      console.log(`Registered Cursor chat command: ${cmd.id}`);
+    } else {
+      console.warn(
+        `Unable to register command: ${cmd.id} - No registration method available`
+      );
+    }
   }
+
+  // Return API object
+  return {
+    showTaskQueue,
+    showLinearSync,
+    showSettings,
+    planProject,
+    pushTasks,
+    showExportDialog,
+    syncWithLinear,
+    viewTaskDetails,
+  };
 }
 
-// Command handlers with improved error messages
-async function handleShowTaskQueue(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Task Queue feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can manage your tasks directly in Linear.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+// Command implementation functions
+function showTaskQueue() {
+  console.log("Task Queue requested");
+  return "The Task Queue feature is currently being implemented.";
 }
 
-async function handlePlanProject(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Project Planning feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can use Cursor AI directly for project planning.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+function planProject() {
+  console.log("Plan Project requested");
+  return "The Project Planning feature is currently being implemented.";
 }
 
-async function handleShowLinearSync(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Linear Sync feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can access your issues directly on Linear's website.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+function showLinearSync() {
+  console.log("Linear Sync requested");
+  return "The Linear Sync feature is currently being implemented.";
 }
 
-async function handleShowSettings(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Settings feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-
-Your current settings:
+function showSettings() {
+  console.log("Settings requested");
+  return `Current settings:
 - Linear API Key: ${settings.linearApiKey ? "Set" : "Not set"}
 - Linear Team ID: ${settings.linearTeamId ? "Set" : "Not set"}
 - Default Priority: ${settings.defaultPriority}
 - Default Estimate: ${settings.defaultEstimate}
 - Sync Interval: ${settings.syncInterval} minutes
-- Auto Sync: ${settings.autoSync ? "Enabled" : "Disabled"}
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+- Auto Sync: ${settings.autoSync ? "Enabled" : "Disabled"}`;
 }
 
-async function handlePushTasks(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Push Tasks feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can create issues directly in Linear.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+function pushTasks() {
+  console.log("Push Tasks requested");
+  return "The Push Tasks feature is currently being implemented.";
 }
 
-async function handleShowExportDialog(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Export Dialog feature is currently under maintenance.
-
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can export data directly from Linear.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+function showExportDialog() {
+  console.log("Export Dialog requested");
+  return "The Export Dialog feature is currently being implemented.";
 }
 
-async function handleSyncWithLinear(
-  ctx: CursorCommandContext,
-  input: string
-): Promise<string> {
-  return `
-The Sync with Linear feature is currently under maintenance.
+function syncWithLinear() {
+  console.log("Sync with Linear requested");
+  return "The Sync with Linear feature is currently being implemented.";
+}
 
-We are working on fixing TypeScript errors to restore full functionality.
-In the meantime, you can access the latest data directly on Linear's website.
-
-Current Status: Building a stable implementation
-Next Steps: Fix remaining TypeScript errors and restore full functionality
-  `;
+function viewTaskDetails(task) {
+  console.log("View Task Details requested", task);
+  return "The View Task Details feature is currently being implemented.";
 }
 
 // Extension deactivation function
 export function deactivate() {
-  console.log("Mo Plugin deactivated! Attempting to use full deactivation...");
-
-  try {
-    return deactivateFull();
-  } catch (error) {
-    console.error("Error deactivating full implementation:", error);
-    console.log("Falling back to simple deactivation");
-  }
+  console.log("Mo Plugin deactivated!");
 }

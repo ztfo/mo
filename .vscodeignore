@@ -15,4 +15,4 @@ scripts/**
 assets/source/**
 **/*.map
 **/*.ts
-!**/*.d.ts 
+!**/*.d.ts

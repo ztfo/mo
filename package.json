@@ -22,14 +22,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:mo-plugin.showTaskQueue",
-    "onCommand:mo-plugin.showLinearSync",
-    "onCommand:mo-plugin.showSettings",
-    "onCommand:mo-plugin.planProject",
-    "onCommand:mo-plugin.pushTasks",
-    "onCommand:mo-plugin.showExportDialog",
-    "onCommand:mo-plugin.syncWithLinear"
+    "*"
   ],
   "contributes": {
     "commands": [
