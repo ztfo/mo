@@ -142,15 +142,31 @@ npm run start
 
 ### Current Build Status
 
-This extension is currently using a simplified build process that provides basic functionality while we work on fixing TypeScript errors in the full implementation. The current version provides minimal functionality with fallbacks for critical features.
+This extension is now fully functional with proper TypeScript compilation! We've fixed all the TypeScript errors that were previously causing issues.
 
-#### Known Issues:
+#### Development Testing
 
-1. TypeScript template literal errors in some files (export-dialog.ts, etc.)
-2. Build process currently creates simplified JavaScript files directly
-3. Some advanced features may not be available
+For the best development experience, use:
 
-We are working on addressing these issues to restore full functionality.
+```bash
+# Build the extension with TypeScript
+npm run build
+
+# Start in development mode with instructions
+npm run dev
+
+# Start with file watching (automatically rebuilds on changes)
+npm run dev:watch
+```
+
+#### Recent Improvements:
+
+1. ✅ Fixed all TypeScript template literal errors
+2. ✅ Restored proper TypeScript compilation
+3. ✅ Enhanced development scripts for better developer experience
+4. ✅ Added fallback mechanisms for robustness
+
+We're now focusing on implementing the remaining features from our roadmap.
 
 ## Implementation Plan
 

@@ -1,6 +1,6 @@
-import { CursorUI, CursorWebview } from '../ui-framework';
-import * as path from 'path';
-import * as os from 'os';
+import { CursorUI, CursorWebview } from "../ui-framework";
+import * as path from "path";
+import * as os from "os";
 
 /**
  * Export Dialog Component
@@ -13,7 +13,10 @@ export class ExportDialog {
   private tasks: any[] = [];
   private exportCallback: (tasks: any[], options: any) => Promise<void>;
 
-  constructor(ui: CursorUI, exportCallback: (tasks: any[], options: any) => Promise<void>) {
+  constructor(
+    ui: CursorUI,
+    exportCallback: (tasks: any[], options: any) => Promise<void>
+  ) {
     this.ui = ui;
     this.exportCallback = exportCallback;
   }
@@ -31,10 +34,10 @@ export class ExportDialog {
     }
 
     // Create new webview
-    this.webview = this.ui.createWebviewPanel('mo-export', {
-      title: 'Export Tasks',
-      viewColumn: 'active',
-      preserveFocus: false
+    this.webview = this.ui.createWebviewPanel("mo-export", {
+      title: "Export Tasks",
+      viewColumn: "active",
+      preserveFocus: false,
     });
 
     this.webview.html = this.getHtml();
@@ -67,7 +70,7 @@ export class ExportDialog {
    */
   private getHtml(): string {
     const tasksJson = JSON.stringify(this.tasks);
-    const defaultExportPath = path.join(process.cwd(), 'tasks');
+    const defaultExportPath = path.join(process.cwd(), "tasks");
 
     return `
       <!DOCTYPE html>
@@ -496,116 +499,116 @@ export class ExportDialog {
             }
 
             // Generate default template
-            function generateDefaultTemplate(task) {
-              let content = `# ${task.title}\n\n`;
+            function generateDefaultTemplate(task: any): string {
+              let content = "# " + task.title + "\n\n";
 
               if (sectionOverview.checked) {
-                content += `## Overview\n${task.description || 'No description provided.'}\n\n`;
+                content += "## Overview\n" + (task.description || 'No description provided.') + "\n\n";
               }
 
               if (sectionRequirements.checked) {
-                content += `## Technical Requirements\n`;
-                content += `- Priority: ${task.priority || 'None'}\n`;
-                content += `- Estimate: ${task.estimate || 'None'}\n`;
-                content += `- Status: ${task.state?.name || 'Unknown'}\n`;
+                content += "## Technical Requirements\n";
+                content += "- Priority: " + (task.priority || 'None') + "\n";
+                content += "- Estimate: " + (task.estimate || 'None') + "\n";
+                content += "- Status: " + (task.state?.name || 'Unknown') + "\n";
                 if (task.labels && task.labels.nodes && task.labels.nodes.length > 0) {
-                  content += `- Labels: ${task.labels.nodes.map(l => l.name).join(', ')}\n`;
+                  content += "- Labels: " + task.labels.nodes.map((l: any) => l.name).join(', ') + "\n";
                 }
                 content += '\n';
               }
 
               if (sectionImplementation.checked) {
-                content += `## Implementation Details\n`;
-                content += `*No implementation details provided.*\n\n`;
+                content += "## Implementation Details\n";
+                content += "*No implementation details provided.*\n\n";
               }
 
               if (sectionReferences.checked) {
-                content += `## References\n`;
-                content += `*No references provided.*\n\n`;
+                content += "## References\n";
+                content += "*No references provided.*\n\n";
               }
 
               if (sectionMetadata.checked) {
-                content += `---\n\n`;
+                content += "---\n\n";
                 if (task.identifier) {
-                  content += `*Task ID: ${task.identifier}*\n`;
+                  content += "*Task ID: " + task.identifier + "*\n";
                 }
                 if (task.url) {
-                  content += `*Linear URL: ${task.url}*\n`;
+                  content += "*Linear URL: " + task.url + "*\n";
                 }
-                content += `*Exported on: ${new Date().toISOString()}*\n`;
+                content += "*Exported on: " + new Date().toISOString() + "*\n";
               }
 
               return content;
             }
 
             // Generate minimal template
-            function generateMinimalTemplate(task) {
-              let content = `# ${task.title}\n\n`;
-              content += `${task.description || 'No description provided.'}\n\n`;
-              content += `Priority: ${task.priority || 'None'} | `;
-              content += `Estimate: ${task.estimate || 'None'} | `;
-              content += `Status: ${task.state?.name || 'Unknown'}\n\n`;
+            function generateMinimalTemplate(task: any): string {
+              let content = "# " + task.title + "\n\n";
+              content += (task.description || 'No description provided.') + "\n\n";
+              content += "Priority: " + (task.priority || 'None') + " | ";
+              content += "Estimate: " + (task.estimate || 'None') + " | ";
+              content += "Status: " + (task.state?.name || 'Unknown') + "\n\n";
 
               if (task.identifier && task.url) {
-                content += `[${task.identifier}](${task.url})\n`;
+                content += "[" + task.identifier + "](" + task.url + ")\n";
               }
 
               return content;
             }
 
             // Generate detailed template
-            function generateDetailedTemplate(task) {
-              let content = `# ${task.title}\n\n`;
+            function generateDetailedTemplate(task: any): string {
+              let content = "# " + task.title + "\n\n";
 
               if (sectionOverview.checked) {
-                content += `## Overview\n${task.description || 'No description provided.'}\n\n`;
+                content += "## Overview\n" + (task.description || 'No description provided.') + "\n\n";
               }
 
               if (sectionRequirements.checked) {
-                content += `## Technical Requirements\n`;
-                content += `### Priority\n${task.priority || 'None'}\n\n`;
-                content += `### Estimate\n${task.estimate || 'None'} points\n\n`;
-                content += `### Status\n${task.state?.name || 'Unknown'}\n\n`;
+                content += "## Technical Requirements\n";
+                content += "### Priority\n" + (task.priority || 'None') + "\n\n";
+                content += "### Estimate\n" + (task.estimate || 'None') + " points\n\n";
+                content += "### Status\n" + (task.state?.name || 'Unknown') + "\n\n";
 
                 if (task.labels && task.labels.nodes && task.labels.nodes.length > 0) {
-                  content += `### Labels\n`;
-                  task.labels.nodes.forEach(label => {
-                    content += `- ${label.name}\n`;
+                  content += "### Labels\n";
+                  task.labels.nodes.forEach((label: any) => {
+                    content += "- " + label.name + "\n";
                   });
                   content += '\n';
                 }
               }
 
               if (sectionImplementation.checked) {
-                content += `## Implementation Details\n\n`;
-                content += `### Approach\n*No approach provided.*\n\n`;
-                content += `### Technical Considerations\n*No technical considerations provided.*\n\n`;
-                content += `### Potential Challenges\n*No potential challenges identified.*\n\n`;
+                content += "## Implementation Details\n\n";
+                content += "### Approach\n*No approach provided.*\n\n";
+                content += "### Technical Considerations\n*No technical considerations provided.*\n\n";
+                content += "### Potential Challenges\n*No potential challenges identified.*\n\n";
               }
 
               if (sectionReferences.checked) {
-                content += `## References\n\n`;
-                content += `### Documentation\n*No documentation references provided.*\n\n`;
-                content += `### Related Tasks\n*No related tasks provided.*\n\n`;
-                content += `### External Resources\n*No external resources provided.*\n\n`;
+                content += "## References\n\n";
+                content += "### Documentation\n*No documentation references provided.*\n\n";
+                content += "### Related Tasks\n*No related tasks provided.*\n\n";
+                content += "### External Resources\n*No external resources provided.*\n\n";
               }
 
               if (sectionMetadata.checked) {
-                content += `---\n\n`;
-                content += `**Metadata**\n\n`;
+                content += "---\n\n";
+                content += "**Metadata**\n\n";
                 if (task.identifier) {
-                  content += `- Task ID: ${task.identifier}\n`;
+                  content += "- Task ID: " + task.identifier + "\n";
                 }
                 if (task.url) {
-                  content += `- Linear URL: ${task.url}\n`;
+                  content += "- Linear URL: " + task.url + "\n";
                 }
                 if (task.createdAt) {
-                  content += `- Created: ${new Date(task.createdAt).toLocaleString()}\n`;
+                  content += "- Created: " + new Date(task.createdAt).toLocaleString() + "\n";
                 }
                 if (task.updatedAt) {
-                  content += `- Updated: ${new Date(task.updatedAt).toLocaleString()}\n`;
+                  content += "- Updated: " + new Date(task.updatedAt).toLocaleString() + "\n";
                 }
-                content += `- Exported: ${new Date().toLocaleString()}\n`;
+                content += "- Exported: " + new Date().toLocaleString() + "\n";
               }
 
               return content;
@@ -626,7 +629,7 @@ export class ExportDialog {
                 const selectedTasks = tasks.filter(t => selectedTaskIds.has(t.id));
                 selectedTasks.forEach(task => {
                   const fileName = getFileName(task);
-                  structure += `├── ${fileName}.md\n`;
+                  structure += "├── " + fileName + ".md\n";
                 });
               } else if (organizationType.value === 'status') {
                 // By status
@@ -642,12 +645,12 @@ export class ExportDialog {
 
                 Array.from(statuses.keys()).forEach((status, index, array) => {
                   const isLast = index === array.length - 1;
-                  structure += `├── ${status}/\n`;
+                  structure += "├── " + status + "/\n";
 
                   statuses.get(status).forEach((task, taskIndex, taskArray) => {
                     const taskIsLast = taskIndex === taskArray.length - 1;
                     const fileName = getFileName(task);
-                    structure += `│   ${taskIsLast ? '└── ' : '├── '}${fileName}.md\n`;
+                    structure += "│   " + (taskIsLast ? '└── ' : '├── ') + fileName + ".md\n";
                   });
                 });
               } else if (organizationType.value === 'priority') {
@@ -663,7 +666,7 @@ export class ExportDialog {
 
                 tasks.filter(t => selectedTaskIds.has(t.id)).forEach(task => {
                   const priorityKey = task.priority?.toString() || 'Unknown';
-                  const priority = priorityNames[priorityKey] || `Priority ${priorityKey}`;
+                  const priority = priorityNames[priorityKey] || "Priority " + priorityKey;
                   if (!priorities.has(priority)) {
                     priorities.set(priority, []);
                   }
@@ -672,12 +675,12 @@ export class ExportDialog {
 
                 Array.from(priorities.keys()).forEach((priority, index, array) => {
                   const isLast = index === array.length - 1;
-                  structure += `├── ${priority}/\n`;
+                  structure += "├── " + priority + "/\n";
 
                   priorities.get(priority).forEach((task, taskIndex, taskArray) => {
                     const taskIsLast = taskIndex === taskArray.length - 1;
                     const fileName = getFileName(task);
-                    structure += `│   ${taskIsLast ? '└── ' : '├── '}${fileName}.md\n`;
+                    structure += "│   " + (taskIsLast ? '└── ' : '├── ') + fileName + ".md\n";
                   });
                 });
               } else if (organizationType.value === 'project') {
@@ -694,12 +697,12 @@ export class ExportDialog {
 
                 Array.from(projects.keys()).forEach((project, index, array) => {
                   const isLast = index === array.length - 1;
-                  structure += `├── ${project}/\n`;
+                  structure += "├── " + project + "/\n";
 
                   projects.get(project).forEach((task, taskIndex, taskArray) => {
                     const taskIsLast = taskIndex === taskArray.length - 1;
                     const fileName = getFileName(task);
-                    structure += `│   ${taskIsLast ? '└── ' : '├── '}${fileName}.md\n`;
+                    structure += "│   " + (taskIsLast ? '└── ' : '├── ') + fileName + ".md\n";
                   });
                 });
               }
@@ -708,18 +711,18 @@ export class ExportDialog {
             }
 
             // Get file name based on pattern
-            function getFileName(task) {
+            function getFileName(task: any): string {
               if (fileNaming.value === 'id') {
-                return task.identifier || `task-${task.id}`;
+                return task.identifier || "task-" + task.id;
               } else if (fileNaming.value === 'title') {
                 return slugify(task.title);
               } else {
-                return (task.identifier || `task-${task.id}`) + '-' + slugify(task.title);
+                return (task.identifier || "task-" + task.id) + '-' + slugify(task.title);
               }
             }
 
             // Slugify string for file names
-            function slugify(text) {
+            function slugify(text: string): string {
               return text
                 .toString()
                 .toLowerCase()
@@ -735,7 +738,7 @@ export class ExportDialog {
             selectAllButton.addEventListener('click', () => {
               tasks.forEach(task => {
                 selectedTaskIds.add(task.id);
-                const checkbox = document.querySelector(`.task-checkbox[data-id="${task.id}"]`);
+                const checkbox = document.querySelector(".task-checkbox[data-id='" + task.id + "']");
                 if (checkbox) {
                   checkbox.checked = true;
                 }
@@ -874,11 +877,11 @@ export class ExportDialog {
    */
   private handleMessage(message: any): void {
     switch (message.command) {
-      case 'export':
+      case "export":
         this.exportTasks(message.tasks, message.options);
         break;
 
-      case 'cancel':
+      case "cancel":
         this.hide();
         break;
     }
@@ -893,17 +896,23 @@ export class ExportDialog {
 
       if (this.webview) {
         this.webview.postMessage({
-          command: 'exportComplete',
-          message: `Successfully exported ${tasks.length} tasks to ${options.exportPath}`
+          command: "exportComplete",
+          message:
+            "Successfully exported " +
+            tasks.length +
+            " tasks to " +
+            options.exportPath,
         });
       }
     } catch (error) {
-      console.error('Failed to export tasks:', error);
+      console.error("Failed to export tasks:", error);
 
       if (this.webview) {
         this.webview.postMessage({
-          command: 'error',
-          message: 'Failed to export tasks: ' + (error instanceof Error ? error.message : String(error))
+          command: "error",
+          message:
+            "Failed to export tasks: " +
+            (error instanceof Error ? error.message : String(error)),
         });
       }
     }

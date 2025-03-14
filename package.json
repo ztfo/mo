@@ -4,12 +4,15 @@
   "publisher": "luispalomares-dev",
   "displayName": "Mo",
   "description": "Linear-Centric Project Management for Cursor IDE",
-  "main": "dist/simple-extension.js",
+  "main": "dist/extension.js",
   "scripts": {
-    "build": "node scripts/build-simple.js",
+    "build": "node scripts/build.js",
+    "build:simple": "node scripts/build-simple.js",
     "watch": "tsc -watch -p ./",
     "lint": "eslint . --ext .ts",
-    "start": "node scripts/build-simple.js && echo 'Extension built. Please open the extension in Cursor to test.'"
+    "start": "node scripts/build.js && echo 'Extension built. Please open the extension in Cursor to test.'",
+    "dev": "node scripts/start-dev.js",
+    "dev:watch": "node scripts/start-dev.js --watch"
   },
   "engines": {
     "vscode": "^1.60.0",
@@ -85,5 +88,13 @@
       ]
     }
   },
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/node-fetch": "^2.6.12",
+    "dotenv": "^16.4.7",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.2"
+  }
 }
