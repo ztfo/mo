@@ -1,93 +1,43 @@
 {
-  "name": "mo-plugin",
-  "version": "1.0.0",
-  "publisher": "luispalomares-dev",
-  "displayName": "Mo",
-  "description": "Linear-Centric Project Management for Cursor IDE",
-  "main": "dist/extension.js",
+  "name": "mo-mcp",
+  "version": "0.1.0",
+  "description": "Task Management MCP Server for Cursor IDE",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "node scripts/build.js",
-    "build:simple": "node scripts/build-simple.js",
-    "watch": "tsc -watch -p ./",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "watch": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "lint": "eslint . --ext .ts",
-    "start": "node scripts/build.js && echo 'Extension built. Please open the extension in Cursor to test.'",
-    "dev": "node scripts/start-dev.js",
-    "dev:watch": "node scripts/start-dev.js --watch"
+    "test": "jest"
   },
-  "engines": {
-    "vscode": "^1.60.0",
-    "cursor": ">=0.2.0"
-  },
-  "categories": [
-    "Other"
+  "keywords": [
+    "cursor",
+    "mcp",
+    "linear",
+    "task-management"
   ],
-  "activationEvents": [
-    "*"
-  ],
-  "contributes": {
-    "commands": [
-      {
-        "command": "mo-plugin.showTaskQueue",
-        "title": "Mo: Show Task Queue"
-      },
-      {
-        "command": "mo-plugin.showLinearSync",
-        "title": "Mo: Show Linear Sync"
-      },
-      {
-        "command": "mo-plugin.showSettings",
-        "title": "Mo: Show Settings"
-      },
-      {
-        "command": "mo-plugin.planProject",
-        "title": "Mo: Plan Project"
-      },
-      {
-        "command": "mo-plugin.pushTasks",
-        "title": "Mo: Push Tasks to Linear"
-      },
-      {
-        "command": "mo-plugin.showExportDialog",
-        "title": "Mo: Show Export Dialog"
-      },
-      {
-        "command": "mo-plugin.syncWithLinear",
-        "title": "Mo: Sync with Linear"
-      }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "mo-plugin.showTaskQueue"
-        },
-        {
-          "command": "mo-plugin.showLinearSync"
-        },
-        {
-          "command": "mo-plugin.showSettings"
-        },
-        {
-          "command": "mo-plugin.planProject"
-        },
-        {
-          "command": "mo-plugin.pushTasks"
-        },
-        {
-          "command": "mo-plugin.showExportDialog"
-        },
-        {
-          "command": "mo-plugin.syncWithLinear"
-        }
-      ]
-    }
-  },
+  "author": "Luis Palomares",
   "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.7",
+    "lowdb": "^7.0.1",
+    "nanoid": "^5.0.6",
+    "node-fetch": "^2.7.0"
+  },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/jest": "^29.5.12",
     "@types/node": "^22.13.10",
     "@types/node-fetch": "^2.6.12",
-    "dotenv": "^16.4.7",
-    "node-fetch": "^2.7.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }
 }

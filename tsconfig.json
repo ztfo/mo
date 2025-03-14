@@ -12,7 +12,7 @@
 
     /* Language and Environment */
     "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ES2020"],
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
     // "libReplacement": true,                           /* Enable lib replacement. */
     // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
@@ -52,7 +52,7 @@
     // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
 
     /* Emit */
-    // "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "declaration": true,
     // "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
     // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */
     "sourceMap": true,
@@ -85,7 +85,7 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Type Checking */
-    "strict": false,
+    "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictFunctionTypes": false,
@@ -107,13 +107,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "out",
-    "dist",
-    "**/*.test.ts",
-    "src/webviews/export-dialog.ts",
-    "src/webviews/planning-interface.ts",
-    "src/webviews/task-details.ts"
-  ]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

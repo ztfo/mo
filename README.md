@@ -1,183 +1,125 @@
-# Mo: Linear-Centric Project Management for Cursor IDE
+# Mo - Task Management MCP Server for Cursor IDE
 
-<p align="center">
-  <img src="assets/icon.png" alt="Mo" width="128" height="128">
-</p>
+Mo is a task management tool designed as a Model Context Protocol (MCP) server for Cursor IDE. It provides seamless integration with Linear for issue tracking and task management, allowing developers to manage their workflow directly from within Cursor.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version 1.0.0">
-  <img src="https://img.shields.io/badge/cursor-compatible-brightgreen" alt="Cursor Compatible">
-</p>
+## Features
 
-An intelligent project planning and management tool that seamlessly integrates Linear with Cursor IDE, providing rich context for AI-assisted development.
+- **Task Management**: Create, update, and track tasks directly in Cursor
+- **Linear Integration**: Sync tasks with Linear for team collaboration
+- **Context-Awareness**: Create tasks from code selections or current file context
+- **AI-Enhanced**: Use AI to generate task breakdowns and project plans
+- **Command-Driven**: Simple command interface integrated with Cursor
 
-## Vision
+## Commands
 
-Mo aims to be your AI-powered project management assistant that lives within your development environment. By bringing project management directly into your IDE and leveraging AI to automate routine tasks, Mo helps developers focus on coding while maintaining excellent project organization.
+Mo provides a set of commands that can be used directly in Cursor:
 
-## Core Features
+- `/mo tasks` - List all tasks with optional filtering
+- `/mo new-task` - Create a new task
+- `/mo update-task` - Update an existing task
+- `/mo task-details` - View task details
+- `/mo linear-sync` - Synchronize with Linear
+- `/mo plan-project` - Generate tasks for a project
+- `/mo help` - Show help information
 
-### Linear-Centric Project Planning
-
-- **Web-Based Planning Interface**: Rich planning experience with AI-powered task generation
-- **Comprehensive Context Generation**: Detailed technical specifications, technology stack information, and implementation guidelines
-- **Linear Integration**: Push tasks with rich context directly to Linear
-- **Consistent Project Structure**: Maintain consistency across tasks with standardized context templates
-- **AI Task Generation**: Leverage Cursor AI to automatically generate tasks based on project descriptions
-
-### Task Management and Context Sharing
-
-- **Task Sidebar**: View and manage Linear tasks directly in Cursor
-- **Context Copying**: Copy task context to clipboard for pasting into Cursor AI chat
-- **Flexible Export**: Export selected tasks as markdown files with customizable templates and organization
-- **Status Updates**: Update task status directly from the sidebar
-- **Advanced Organization**: Organize exported tasks by status, priority, or project
-
-### Seamless Cursor Integration
-
-- **Command Palette Access**: Trigger all functionality through standard commands
-- **Status Bar Information**: Quick access to tasks and sync status
-- **Standard VS Code APIs**: Built using standard extension APIs for maximum compatibility
-- **Cursor AI Integration**: Leverage Cursor's AI capabilities for task generation
+See the [Commands Documentation](./docs/mcp/COMMANDS.md) for a complete list.
 
 ## Getting Started
 
-1. Clone this repository
+### Prerequisites
+
+- [Cursor IDE](https://cursor.sh/)
+- Node.js 16+
+- Linear account (optional, for Linear integration)
+
+### Installation
+
+1. Clone this repository:
+
+   ```
+   git clone https://github.com/ztfo/mo.git
+   cd mo
+   ```
+
 2. Install dependencies:
-   ```bash
+
+   ```
    npm install
    ```
-3. Update Linear API credentials in `.env` file:
+
+3. Build the project:
+
    ```
-   LINEAR_API_KEY=your_api_key_here
-   LINEAR_TEAM_ID=your_team_id_here
-   ```
-4. Build the extension:
-   ```bash
    npm run build
    ```
-5. Package the extension:
-   ```bash
-   npm run package
+
+4. Start the MCP server:
+
    ```
-6. Install the extension in Cursor IDE:
-   - Open Cursor
-   - Go to Extensions view (Ctrl+Shift+X or Cmd+Shift+X)
-   - Click on the "..." menu in the top-right of the Extensions view
-   - Select "Install from VSIX..."
-   - Navigate to the .vsix file in the project directory
-   - Select the file and click "Install"
+   npm start
+   ```
 
-## Usage
+5. In Cursor, you can now use Mo commands (e.g., `/mo tasks`)
 
-### Project Planning Workflow
+### Configuration
 
-1. **Plan Your Project**:
+For Linear integration, you'll need to authenticate:
 
-   - Open the command palette (Ctrl+Shift+P or Cmd+Shift+P)
-   - Run "Mo: Plan Project"
-   - Enter your project description and requirements
-   - Configure generation options (detail level, focus areas, tech stack)
-   - Click "Generate Tasks" to use Cursor AI for task generation
-   - Review and customize AI-generated tasks
-   - Push tasks to Linear
+```
+/mo linear-auth key:your_linear_api_key
+```
 
-2. **Develop with Context**:
+## MCP Server Approach
 
-   - View tasks in the sidebar
-   - Select a task to see its detailed context
-   - Copy context to clipboard
-   - Paste into Cursor AI chat for implementation assistance
-   - Alternatively, export tasks to markdown files for reference
+Mo is implemented as an MCP server for Cursor, which provides several advantages:
 
-3. **Export Tasks**:
+- **Simplified Architecture**: Lightweight command-driven interface
+- **Context Awareness**: Access to your current code context
+- **AI Integration**: Leverages Cursor's AI capabilities
+- **Command-Based**: Familiar interface for Cursor users
 
-   - Run "Mo: Show Export Dialog" from the command palette
-   - Select tasks to export
-   - Choose organization type (flat, by status, by priority, by project)
-   - Select template (default, minimal, detailed)
-   - Customize sections to include
-   - Preview the export
-   - Set export location and click "Export Tasks"
+## Project Structure
 
-4. **Track Progress**:
-   - Update task status directly from the sidebar
-   - Run "Mo: Sync with Linear" to get latest updates
-   - Changes sync back to Linear
-   - Keep your team updated on progress
-
-### Commands
-
-- **Mo: Plan Project**: Open the planning interface
-- **Mo: Show Task Queue**: Open the task sidebar
-- **Mo: Show Export Dialog**: Open the export dialog for task export customization
-- **Mo: Sync with Linear**: Sync latest changes from Linear
-- **Mo: Push Tasks to Linear**: Push tasks from planning interface to Linear
-- **Mo: Show Settings**: Configure plugin settings
-
-## Task Context Structure
-
-Each task includes comprehensive context:
-
-- **Overview**: Brief description of the task
-- **Technical Requirements**: Detailed technical specifications
-- **Technology Stack**: Frameworks, libraries, and tools to use
-- **Integration Points**: How this component interacts with others
-- **Data Models**: Relevant data structures and schemas
-- **UX Patterns**: Design patterns and user experience guidelines
-- **Implementation Considerations**: Important notes for implementation
-- **References**: Links to documentation and resources
+```
+mo/
+├── src/             # Source code
+│   ├── index.ts     # Entry point
+│   ├── server.ts    # MCP server implementation
+│   ├── commands/    # Command handlers
+│   ├── data/        # Data persistence
+│   ├── linear/      # Linear API integration
+│   ├── utils/       # Utility functions
+│   └── types/       # TypeScript types
+├── data/            # Local data storage
+└── docs/            # Documentation
+```
 
 ## Development
 
-For development, use the following commands:
-
 ```bash
-# Build the extension
+# Build the project
 npm run build
 
-# Start the extension in development mode
-npm run start
-```
-
-### Current Build Status
-
-This extension is now fully functional with proper TypeScript compilation! We've fixed all the TypeScript errors that were previously causing issues.
-
-#### Development Testing
-
-For the best development experience, use:
-
-```bash
-# Build the extension with TypeScript
-npm run build
-
-# Start in development mode with instructions
+# Run in development mode
 npm run dev
 
-# Start with file watching (automatically rebuilds on changes)
-npm run dev:watch
+# Watch for changes
+npm run watch
 ```
-
-#### Recent Improvements:
-
-1. ✅ Fixed all TypeScript template literal errors
-2. ✅ Restored proper TypeScript compilation
-3. ✅ Enhanced development scripts for better developer experience
-4. ✅ Added fallback mechanisms for robustness
-
-We're now focusing on implementing the remaining features from our roadmap.
-
-## Implementation Plan
-
-See [docs/PROJECT_STATUS.md](./docs/PROJECT_STATUS.md) for current implementation status and our detailed implementation plan.
 
 ## Documentation
 
-- [Project Status](./docs/PROJECT_STATUS.md): Current implementation status and roadmap
-- [Implementation Notes](./docs/IMPLEMENTATION_NOTES.md): Technical implementation details
-- [Testing Guide](./docs/TESTING.md): Guide for testing the plugin features
+- [Project Plan](./docs/PROJECT_PLAN.md) - High-level project plan
+- [Architecture](./docs/architecture/MCP_ARCHITECTURE.md) - Architecture details
+- [Commands](./docs/mcp/COMMANDS.md) - Command documentation
+- [Implementation Guide](./docs/mcp/IMPLEMENTATION_GUIDE.md) - Development guide
+- [Feature Roadmap](./docs/features/ROADMAP.md) - Planned features
 
 ## License
 
-ISC
+This project is licensed under the ISC License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [Cursor IDE](https://cursor.sh/) for the MCP platform
+- [Linear](https://linear.app/) for their excellent issue tracking API
