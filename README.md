@@ -2,13 +2,23 @@
 
 Mo is a task management tool designed as a Model Context Protocol (MCP) server for Cursor IDE. It provides seamless integration with Linear for issue tracking and task management, allowing developers to manage their workflow directly from within Cursor.
 
+## Project Status
+
+- **Phase 1**: ✅ Completed (March 21, 2024) - Core infrastructure and basic task management
+- **Phase 2**: 🔄 In Progress - Linear integration
+- **Phase 3**: 📅 Planned - AI enhancement features
+- **Phase 4**: 📅 Planned - Advanced features and polish
+
+See the [Project Plan](./docs/PROJECT_PLAN.md) for more details on the project timeline and phases.
+
 ## Features
 
 - **Task Management**: Create, update, and track tasks directly in Cursor
-- **Linear Integration**: Sync tasks with Linear for team collaboration
 - **Context-Awareness**: Create tasks from code selections or current file context
-- **AI-Enhanced**: Use AI to generate task breakdowns and project plans
-- **Command-Driven**: Simple command interface integrated with Cursor
+- **Protocol Version Handling**: Support for Cursor MCP protocol version compatibility
+- **Rich Responses**: Markdown-formatted responses with action buttons
+- **Linear Integration**: _(Coming in Phase 2)_ Sync tasks with Linear for team collaboration
+- **AI-Enhanced**: _(Coming in Phase 3)_ Generate task breakdowns and project plans
 
 ## Commands
 
@@ -18,9 +28,15 @@ Mo provides a set of commands that can be used directly in Cursor:
 - `/mo new-task` - Create a new task
 - `/mo update-task` - Update an existing task
 - `/mo task-details` - View task details
-- `/mo linear-sync` - Synchronize with Linear
-- `/mo plan-project` - Generate tasks for a project
+- `/mo delete-task` - Delete a task
 - `/mo help` - Show help information
+- `/mo settings` - View/update settings
+
+Commands planned for future phases:
+
+- `/mo linear-sync` - _(Phase 2)_ Synchronize with Linear
+- `/mo linear-auth` - _(Phase 2)_ Authenticate with Linear
+- `/mo plan-project` - _(Phase 3)_ Generate tasks for a project
 
 See the [Commands Documentation](./docs/mcp/COMMANDS.md) for a complete list.
 
@@ -30,7 +46,7 @@ See the [Commands Documentation](./docs/mcp/COMMANDS.md) for a complete list.
 
 - [Cursor IDE](https://cursor.sh/)
 - Node.js 16+
-- Linear account (optional, for Linear integration)
+- Linear account (optional, for Linear integration when Phase 2 is complete)
 
 ### Installation
 
@@ -63,7 +79,13 @@ See the [Commands Documentation](./docs/mcp/COMMANDS.md) for a complete list.
 
 ### Configuration
 
-For Linear integration, you'll need to authenticate:
+Local configuration is handled through the settings command:
+
+```
+/mo settings
+```
+
+Linear integration (coming in Phase 2):
 
 ```
 /mo linear-auth key:your_linear_api_key
@@ -75,6 +97,7 @@ Mo is implemented as an MCP server for Cursor, which provides several advantages
 
 - **Simplified Architecture**: Lightweight command-driven interface
 - **Context Awareness**: Access to your current code context
+- **Protocol Version Handling**: Support across different Cursor versions
 - **AI Integration**: Leverages Cursor's AI capabilities
 - **Command-Based**: Familiar interface for Cursor users
 
@@ -85,9 +108,10 @@ mo/
 ├── src/             # Source code
 │   ├── index.ts     # Entry point
 │   ├── server.ts    # MCP server implementation
-│   ├── commands/    # Command handlers
+│   │   ├── tasks/   # Task management commands
+│   │   └── system/  # System/utility commands
 │   ├── data/        # Data persistence
-│   ├── linear/      # Linear API integration
+│   ├── linear/      # Linear API integration (Phase 2)
 │   ├── utils/       # Utility functions
 │   └── types/       # TypeScript types
 ├── data/            # Local data storage
@@ -109,7 +133,8 @@ npm run watch
 
 ## Documentation
 
-- [Project Plan](./docs/PROJECT_PLAN.md) - High-level project plan
+- [Project Plan](./docs/PROJECT_PLAN.md) - High-level plan and timeline
+- [Project Context](./docs/PROJECT_CONTEXT.md) - Project status and context
 - [Architecture](./docs/architecture/MCP_ARCHITECTURE.md) - Architecture details
 - [Commands](./docs/mcp/COMMANDS.md) - Command documentation
 - [Implementation Guide](./docs/mcp/IMPLEMENTATION_GUIDE.md) - Development guide
