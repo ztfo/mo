@@ -1,6 +1,6 @@
 {
   "name": "mo-linear-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Linear Task Management MCP for Cursor IDE",
   "main": "dist/index.js",
   "bin": "dist/index.js",
