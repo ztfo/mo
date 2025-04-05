@@ -21,6 +21,14 @@
   ],
   "author": "Luis Palomares",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ztfo/mo.git"
+  },
+  "homepage": "https://github.com/ztfo/mo#readme",
+  "bugs": {
+    "url": "https://github.com/ztfo/mo/issues"
+  },
   "dependencies": {
     "crypto-js": "^4.2.0",
     "date-fns": "^2.30.0",
