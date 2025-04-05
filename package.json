@@ -46,6 +46,8 @@
     "typescript": "^5.8.2"
   },
   "cursor-tools": {
+    "name": "Linear",
+    "description": "Linear Task Management for Cursor",
     "functions": [
       {
         "name": "linear_auth",

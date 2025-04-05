@@ -16,12 +16,13 @@ import { CommandResult } from "./types/command";
 // Load environment variables
 dotenv.config();
 
-// Check if being run in chat tool mode (directly invoked from package.json cursor-tools declaration)
-const isChatToolMode = process.argv.length > 2;
+// Check if being run in chat tool mode with a specific command
+// (npx mo-linear-mcp command params)
+const isDirectToolInvocation = process.argv.length > 2;
 
-// Process chat tool invocation if applicable
-if (isChatToolMode) {
-  handleChatToolInvocation();
+// Process direct tool invocation if applicable
+if (isDirectToolInvocation) {
+  handleDirectToolInvocation();
 } else {
   // Standard MCP server mode
   startMcpServer();
@@ -34,6 +35,8 @@ function startMcpServer() {
   // Check for webhook flag (defaults to disabled)
   const enableWebhooks = process.env.ENABLE_WEBHOOKS === "true";
 
+  console.log("Starting Mo Linear MCP server...");
+
   // Initialize data store
   initializeDataStore()
     .then(() => {
@@ -43,6 +46,11 @@ function startMcpServer() {
       startServer(enableWebhooks)
         .then(() => {
           console.log("Mo MCP server started successfully");
+
+          // Keep the process alive - this is critical for NPX execution
+          console.log("Server is now ready to receive commands");
+
+          // Don't exit - this keeps the server running
         })
         .catch((error) => {
           console.error("Failed to start MCP server:", error);
@@ -58,7 +66,7 @@ function startMcpServer() {
 /**
  * Handle direct invocation as a chat tool
  */
-async function handleChatToolInvocation() {
+async function handleDirectToolInvocation() {
   try {
     // Initialize data store
     await initializeDataStore();
@@ -72,6 +80,8 @@ async function handleChatToolInvocation() {
 
     // Create command string in the format the processor expects
     const command = `/mo ${commandName}`;
+
+    console.log(`Processing command: ${command}`);
 
     // Process the command
     const result = await processCommand(command, {
