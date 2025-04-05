@@ -16,6 +16,9 @@ import {
   linearProjectsCommand,
   linearStatesCommand,
   linearIssuesCommand,
+  linearWebhookRegisterCommand,
+  linearWebhookListCommand,
+  linearWebhookDeleteCommand,
 } from "./index";
 
 /**
@@ -194,6 +197,61 @@ export function getLinearCommands(): Record<string, CommandRegistration> {
       {
         name: "limit",
         description: "Maximum number of issues to return (default: 10)",
+        required: false,
+      },
+    ],
+  };
+
+  // Webhook commands
+  commands["linear-webhook-register"] = {
+    name: "linear-webhook-register",
+    handler: linearWebhookRegisterCommand,
+    description: "Register a webhook with Linear",
+    parameters: [
+      {
+        name: "url",
+        description: "Webhook URL",
+        required: true,
+      },
+      {
+        name: "team",
+        description: "Linear team ID",
+        required: false,
+      },
+      {
+        name: "resources",
+        description:
+          "Comma-separated list of resource types (Issue,Comment,IssueLabel)",
+        required: false,
+      },
+      {
+        name: "label",
+        description: "Label for the webhook",
+        required: false,
+      },
+      {
+        name: "secret",
+        description: "Secret for webhook signature verification",
+        required: false,
+      },
+    ],
+  };
+
+  commands["linear-webhook-list"] = {
+    name: "linear-webhook-list",
+    handler: linearWebhookListCommand,
+    description: "List registered webhooks",
+    parameters: [],
+  };
+
+  commands["linear-webhook-delete"] = {
+    name: "linear-webhook-delete",
+    handler: linearWebhookDeleteCommand,
+    description: "Delete a registered webhook",
+    parameters: [
+      {
+        name: "id",
+        description: "Webhook ID to delete",
         required: false,
       },
     ],

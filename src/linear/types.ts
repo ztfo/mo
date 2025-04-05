@@ -369,3 +369,49 @@ export interface LinearSyncError {
   /** Additional error details */
   details?: any;
 }
+
+/**
+ * Linear Webhook Event
+ */
+export interface LinearWebhookEvent {
+  /** Event type */
+  type: string;
+
+  /** Event action (created, updated, removed, etc.) */
+  action?: string;
+
+  /** Event data */
+  data?: {
+    /** Issue ID */
+    id?: string;
+
+    /** Other event data properties */
+    [key: string]: any;
+  };
+
+  /** Issue this event relates to */
+  issue?: LinearIssue;
+
+  /** Timestamp of the event */
+  timestamp?: string;
+}
+
+/**
+ * Linear Webhook Configuration
+ */
+export interface LinearWebhookConfig {
+  /** Webhook URL */
+  url: string;
+
+  /** Resource types to subscribe to */
+  resourceTypes?: string[];
+
+  /** Webhook secret for signature verification */
+  secret?: string;
+
+  /** Team ID to scope the webhook to */
+  teamId?: string;
+
+  /** Label for the webhook */
+  label?: string;
+}

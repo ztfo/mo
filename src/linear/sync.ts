@@ -248,11 +248,16 @@ async function pullFromLinear(
   limit: number
 ): Promise<void> {
   try {
-    // Get recently updated issues from Linear
-    const issues = await client.getIssues({
-      filter: { team: { id: { eq: teamId } } },
-      first: limit,
-    });
+    // Get recently updated issues from Linear using pagination
+    const issues = await client.getAllIssues(
+      {
+        filter: { team: { id: { eq: teamId } } },
+        // Sort by last updated
+        orderBy: { updatedAt: "DESC" },
+      },
+      50, // Use a reasonable batch size
+      limit // Respect the overall limit
+    );
 
     // Get existing tasks that have Linear IDs
     const existingTasks = await getTasks({ hasLinearId: true });

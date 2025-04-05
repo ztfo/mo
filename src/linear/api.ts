@@ -355,19 +355,21 @@ export class LinearClient {
    * Get issues from Linear
    *
    * @param options Query options
-   * @returns List of issues
+   * @returns List of issues and pagination info
    */
-  async getIssues(
-    options?: Partial<LinearQueryOptions>
-  ): Promise<LinearIssue[]> {
+  async getIssues(options?: Partial<LinearQueryOptions>): Promise<{
+    issues: LinearIssue[];
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  }> {
     // Build filter object for GraphQL query
     const filter: Record<string, any> = options?.filter || {};
 
     const query = `
-      query($filter: IssueFilter, $first: Int) {
+      query($filter: IssueFilter, $first: Int, $after: String) {
         issues(
           filter: $filter
           first: $first
+          after: $after
         ) {
           nodes {
             id
@@ -410,22 +412,85 @@ export class LinearClient {
             updatedAt
             url
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }
     `;
 
     try {
       const data = await this.executeQuery<{
-        issues: { nodes: LinearIssue[] };
+        issues: {
+          nodes: LinearIssue[];
+          pageInfo: {
+            hasNextPage: boolean;
+            endCursor: string | null;
+          };
+        };
       }>(query, {
         filter,
         first: options?.first || 50,
+        after: options?.after || null,
       });
 
-      return data.issues.nodes;
+      return {
+        issues: data.issues.nodes,
+        pageInfo: data.issues.pageInfo,
+      };
     } catch (error) {
       throw this.formatError(error);
     }
+  }
+
+  /**
+   * Get all issues from Linear with automatic pagination
+   *
+   * @param options Query options
+   * @param batchSize Size of each page of results
+   * @param maxItems Maximum number of items to retrieve (optional)
+   * @returns List of all matching issues
+   */
+  async getAllIssues(
+    options?: Partial<LinearQueryOptions>,
+    batchSize: number = 50,
+    maxItems?: number
+  ): Promise<LinearIssue[]> {
+    const allIssues: LinearIssue[] = [];
+    let hasNextPage = true;
+    let cursor: string | null = null;
+
+    // Set a reasonable upper limit to prevent infinite loops
+    const limit = maxItems || 1000;
+
+    while (hasNextPage && allIssues.length < limit) {
+      // Get current batch of issues
+      const { issues, pageInfo } = await this.getIssues({
+        ...options,
+        first: batchSize,
+        after: cursor,
+      });
+
+      // Add issues to the result array
+      allIssues.push(...issues);
+
+      // Update pagination state
+      hasNextPage = pageInfo.hasNextPage;
+      cursor = pageInfo.endCursor;
+
+      // If we've reached the maximum number of items, stop paging
+      if (maxItems && allIssues.length >= maxItems) {
+        break;
+      }
+
+      // Add a small delay between requests to avoid rate limiting
+      if (hasNextPage) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
+
+    return allIssues;
   }
 
   /**
@@ -607,6 +672,104 @@ export class LinearClient {
       }>(query, { id });
 
       return data.issueDelete.success;
+    } catch (error) {
+      throw this.formatError(error);
+    }
+  }
+
+  /**
+   * Create a webhook in Linear
+   *
+   * @param config Webhook configuration
+   * @returns Created webhook information
+   */
+  async createWebhook(config: {
+    url: string;
+    teamId?: string;
+    label?: string;
+    resourceTypes?: string[];
+  }): Promise<{ id: string; url: string; resourceTypes: string[] }> {
+    const query = `
+      mutation($input: WebhookCreateInput!) {
+        webhookCreate(input: $input) {
+          success
+          webhook {
+            id
+            url
+            label
+            resourceTypes
+            teamId
+            createdAt
+          }
+        }
+      }
+    `;
+
+    try {
+      const variables = {
+        input: {
+          url: config.url,
+          label: config.label || "Mo MCP Webhook",
+          resourceTypes: config.resourceTypes || [
+            "Issue",
+            "Comment",
+            "IssueLabel",
+          ],
+          teamId: config.teamId,
+        },
+      };
+
+      const data = await this.executeQuery<{
+        webhookCreate: {
+          success: boolean;
+          webhook: {
+            id: string;
+            url: string;
+            label: string;
+            resourceTypes: string[];
+            teamId?: string;
+            createdAt: string;
+          };
+        };
+      }>(query, variables);
+
+      if (!data.webhookCreate.success) {
+        throw new Error("Failed to create webhook");
+      }
+
+      return {
+        id: data.webhookCreate.webhook.id,
+        url: data.webhookCreate.webhook.url,
+        resourceTypes: data.webhookCreate.webhook.resourceTypes,
+      };
+    } catch (error) {
+      throw this.formatError(error);
+    }
+  }
+
+  /**
+   * Delete a webhook in Linear
+   *
+   * @param id Webhook ID to delete
+   * @returns Whether the deletion was successful
+   */
+  async deleteWebhook(id: string): Promise<boolean> {
+    const query = `
+      mutation($id: ID!) {
+        webhookDelete(id: $id) {
+          success
+        }
+      }
+    `;
+
+    try {
+      const data = await this.executeQuery<{
+        webhookDelete: {
+          success: boolean;
+        };
+      }>(query, { id });
+
+      return data.webhookDelete.success;
     } catch (error) {
       throw this.formatError(error);
     }

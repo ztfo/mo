@@ -115,6 +115,12 @@ You need to authenticate with Linear before you can sync:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -134,6 +140,20 @@ The direction parameter must be one of: \`push\`, \`pull\`, or \`both\`.
 
 Example: \`/mo linear-sync direction:pull\`
 `,
+          actionButtons: [
+            {
+              label: "Sync Both Ways",
+              command: "/mo linear-sync",
+            },
+            {
+              label: "Push to Linear",
+              command: "/mo linear-sync direction:push",
+            },
+            {
+              label: "Pull from Linear",
+              command: "/mo linear-sync direction:pull",
+            },
+          ],
         };
       }
     }
@@ -171,6 +191,16 @@ Example: \`/mo linear-sync direction:pull\`
       success: true,
       message: `Linear sync complete: ${result.added} added, ${result.updated} updated`,
       markdown: formatSyncResult(result, options),
+      actionButtons: [
+        {
+          label: "View Linear Issues",
+          command: `/mo linear-issues team:${options.teamId}`,
+        },
+        {
+          label: "View Mo Tasks",
+          command: "/mo tasks",
+        },
+      ],
     };
   } catch (error) {
     console.error("Linear sync command error:", error);
@@ -188,6 +218,16 @@ An error occurred during synchronization:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "Check Linear Status",
+          command: "/mo linear-status",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-sync",
+        },
+      ],
     };
   }
 };
@@ -211,6 +251,12 @@ You need to authenticate with Linear before you can push tasks:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -227,6 +273,16 @@ You must specify either a task ID or a filter:
 \`/mo linear-push id:task-123\`
 \`/mo linear-push filter:status:todo\`
 `,
+        actionButtons: [
+          {
+            label: "Push All Tasks",
+            command: "/mo linear-push filter:all",
+          },
+          {
+            label: "Push Todo Tasks",
+            command: "/mo linear-push filter:status:todo",
+          },
+        ],
       };
     }
 
@@ -270,6 +326,16 @@ Please check the ID and try again.
       success: true,
       message: `Linear push complete: ${result.added} added, ${result.updated} updated`,
       markdown: formatSyncResult(result, options),
+      actionButtons: [
+        {
+          label: "View Linear Issues",
+          command: `/mo linear-issues team:${options.teamId}`,
+        },
+        {
+          label: "View Mo Tasks",
+          command: "/mo tasks",
+        },
+      ],
     };
   } catch (error) {
     console.error("Linear push command error:", error);
@@ -287,6 +353,16 @@ An error occurred while pushing to Linear:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "Check Linear Status",
+          command: "/mo linear-status",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-push",
+        },
+      ],
     };
   }
 };
@@ -310,6 +386,12 @@ You need to authenticate with Linear before you can pull issues:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -352,6 +434,16 @@ You need to authenticate with Linear before you can pull issues:
       success: true,
       message: `Linear pull complete: ${result.added} added, ${result.updated} updated`,
       markdown: formatSyncResult(result, options),
+      actionButtons: [
+        {
+          label: "View Linear Issues",
+          command: `/mo linear-issues team:${options.teamId}`,
+        },
+        {
+          label: "View Mo Tasks",
+          command: "/mo tasks",
+        },
+      ],
     };
   } catch (error) {
     console.error("Linear pull command error:", error);
@@ -369,6 +461,20 @@ An error occurred while pulling from Linear:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "Check Linear Status",
+          command: "/mo linear-status",
+        },
+        {
+          label: "View Linear Issues",
+          command: "/mo linear-issues",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-pull",
+        },
+      ],
     };
   }
 };

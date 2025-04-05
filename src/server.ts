@@ -7,6 +7,7 @@
 
 import { processCommand } from "./commands";
 import { CommandContext, CommandResult, MCPRequest } from "./types/command";
+import { startWebhookServer, stopWebhookServer } from "./linear/webhooks";
 
 // The MCP server state
 let isServerRunning = false;
@@ -40,7 +41,9 @@ function isSupportedVersion(version: string): boolean {
  * This function initializes the MCP server and sets up the necessary event listeners
  * to handle incoming commands from Cursor.
  */
-export async function startServer(): Promise<void> {
+export async function startServer(
+  enableWebhooks: boolean = false
+): Promise<void> {
   if (isServerRunning) {
     console.log("MCP server is already running");
     return;
@@ -49,6 +52,21 @@ export async function startServer(): Promise<void> {
   try {
     // Set up listeners for incoming MCP requests
     process.stdin.on("data", handleMcpRequest);
+
+    // Start Linear webhook server if enabled
+    if (enableWebhooks) {
+      try {
+        await startWebhookServer();
+        console.log("Linear webhook server started");
+      } catch (error) {
+        console.error("Failed to start webhook server:", error);
+        // Continue even if webhook server fails to start
+      }
+    } else {
+      console.log(
+        "Linear webhook server disabled (not recommended for MCP environments)"
+      );
+    }
 
     // Mark the server as running
     isServerRunning = true;
@@ -131,3 +149,34 @@ function sendMcpResponse(result: CommandResult): void {
     console.error("Error sending MCP response:", error);
   }
 }
+
+/**
+ * Setup cleanup handlers for graceful shutdown
+ */
+function setupCleanupHandlers(): void {
+  // Handle process signals for cleanup
+  process.on("SIGINT", async () => {
+    console.log("Received SIGINT, shutting down...");
+    try {
+      // Stop webhook server if running
+      await stopWebhookServer();
+    } catch (error) {
+      console.error("Error during shutdown:", error);
+    }
+    process.exit(0);
+  });
+
+  process.on("SIGTERM", async () => {
+    console.log("Received SIGTERM, shutting down...");
+    try {
+      // Stop webhook server if running
+      await stopWebhookServer();
+    } catch (error) {
+      console.error("Error during shutdown:", error);
+    }
+    process.exit(0);
+  });
+}
+
+// Set up cleanup handlers
+setupCleanupHandlers();

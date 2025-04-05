@@ -259,6 +259,12 @@ You need to authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -275,6 +281,12 @@ Please authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -286,11 +298,37 @@ Please authenticate with Linear first:
     const auth = await getLinearAuth();
     const defaultTeamId = auth?.defaultTeamId;
 
+    // Build action buttons
+    const actionButtons = [];
+
+    // Add button to set default team if multiple teams
+    if (teams.length > 1) {
+      actionButtons.push({
+        label: "Set Default Team",
+        command: "/mo linear-auth team:",
+      });
+    }
+
+    // Add button to view projects for first team
+    if (teams.length > 0) {
+      const teamId = defaultTeamId || teams[0].id;
+      actionButtons.push({
+        label: "View Projects",
+        command: `/mo linear-projects team:${teamId}`,
+      });
+
+      actionButtons.push({
+        label: "View Issues",
+        command: `/mo linear-issues team:${teamId}`,
+      });
+    }
+
     // Format response
     return {
       success: true,
       message: `Found ${teams.length} Linear teams`,
       markdown: formatTeams(teams, defaultTeamId),
+      actionButtons: actionButtons,
     };
   } catch (error) {
     console.error("Linear teams command error:", error);
@@ -308,6 +346,16 @@ An error occurred while fetching teams:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "Check Linear Status",
+          command: "/mo linear-status",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-teams",
+        },
+      ],
     };
   }
 };
@@ -334,6 +382,12 @@ You need to authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -350,6 +404,12 @@ Please authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -375,6 +435,12 @@ Please authenticate with Linear first:
 
 You don't have any teams in Linear.
 `,
+            actionButtons: [
+              {
+                label: "View Teams",
+                command: "/mo linear-teams",
+              },
+            ],
           };
         }
 
@@ -397,16 +463,39 @@ The team with ID \`${teamId}\` was not found.
 
 Please check the team ID and try again.
 `,
+        actionButtons: [
+          {
+            label: "View Teams",
+            command: "/mo linear-teams",
+          },
+        ],
       };
     }
 
     const projects = await client.getProjects(teamId);
+
+    // Build action buttons
+    const actionButtons = [
+      {
+        label: "View Teams",
+        command: "/mo linear-teams",
+      },
+      {
+        label: "View Issues",
+        command: `/mo linear-issues team:${teamId}`,
+      },
+      {
+        label: "View Workflow States",
+        command: `/mo linear-states team:${teamId}`,
+      },
+    ];
 
     // Format response
     return {
       success: true,
       message: `Found ${projects.length} Linear projects for team ${team.name}`,
       markdown: formatProjects(projects, team.name, teamId),
+      actionButtons,
     };
   } catch (error) {
     console.error("Linear projects command error:", error);
@@ -424,6 +513,16 @@ An error occurred while fetching projects:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "View Teams",
+          command: "/mo linear-teams",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-projects",
+        },
+      ],
     };
   }
 };
@@ -447,6 +546,12 @@ You need to authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -463,6 +568,12 @@ Please authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -488,6 +599,12 @@ Please authenticate with Linear first:
 
 You don't have any teams in Linear.
 `,
+            actionButtons: [
+              {
+                label: "View Teams",
+                command: "/mo linear-teams",
+              },
+            ],
           };
         }
 
@@ -510,16 +627,43 @@ The team with ID \`${teamId}\` was not found.
 
 Please check the team ID and try again.
 `,
+        actionButtons: [
+          {
+            label: "View Teams",
+            command: "/mo linear-teams",
+          },
+        ],
       };
     }
 
     const states = await client.getWorkflowStates(teamId);
+
+    // Build action buttons
+    const actionButtons = [
+      {
+        label: "View Teams",
+        command: "/mo linear-teams",
+      },
+      {
+        label: "View Projects",
+        command: `/mo linear-projects team:${teamId}`,
+      },
+      {
+        label: "View Issues",
+        command: `/mo linear-issues team:${teamId}`,
+      },
+      {
+        label: "Sync with Linear",
+        command: `/mo linear-sync team:${teamId}`,
+      },
+    ];
 
     // Format response
     return {
       success: true,
       message: `Found ${states.length} Linear workflow states for team ${team.name}`,
       markdown: formatWorkflowStates(states, team.name),
+      actionButtons,
     };
   } catch (error) {
     console.error("Linear states command error:", error);
@@ -537,6 +681,16 @@ An error occurred while fetching workflow states:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "View Teams",
+          command: "/mo linear-teams",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-states",
+        },
+      ],
     };
   }
 };
@@ -560,6 +714,12 @@ You need to authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -576,6 +736,12 @@ Please authenticate with Linear first:
 
 \`/mo linear-auth key:your_linear_api_key\`
 `,
+        actionButtons: [
+          {
+            label: "Authenticate with Linear",
+            command: "/mo linear-auth",
+          },
+        ],
       };
     }
 
@@ -624,16 +790,90 @@ Please authenticate with Linear first:
     const client = new LinearClient(apiKey);
     const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
-    const issues = await client.getIssues({
-      filter,
-      first: isNaN(limit) ? 10 : Math.min(Math.max(1, limit), 50),
-    });
+    // Determine if we should use pagination
+    const usePagination = params.paginate === "true";
+    const maxItems = params.all === "true" ? undefined : limit;
+
+    let issues: LinearIssue[] = [];
+    let hasMoreIssues = false;
+    let nextCursor: string | null = null;
+
+    if (usePagination || params.all === "true") {
+      // Use the getAllIssues method that handles pagination automatically
+      issues = await client.getAllIssues(
+        { filter, first: Math.min(Math.max(1, limit), 50) },
+        50, // batch size
+        maxItems
+      );
+    } else {
+      // Use the regular getIssues method with single page
+      const result = await client.getIssues({
+        filter,
+        first: isNaN(limit) ? 10 : Math.min(Math.max(1, limit), 50),
+      });
+      issues = result.issues;
+      hasMoreIssues = result.pageInfo.hasNextPage;
+      nextCursor = result.pageInfo.endCursor;
+    }
+
+    // Build action buttons
+    const actionButtons = [
+      {
+        label: "View Teams",
+        command: "/mo linear-teams",
+      },
+    ];
+
+    if (teamId) {
+      actionButtons.push({
+        label: "View Projects",
+        command: `/mo linear-projects team:${teamId}`,
+      });
+
+      actionButtons.push({
+        label: "View States",
+        command: `/mo linear-states team:${teamId}`,
+      });
+    }
+
+    // Add pagination buttons if there are more issues
+    if (hasMoreIssues && nextCursor) {
+      const nextPageCommand = `/mo linear-issues team:${teamId} limit:${limit} cursor:${nextCursor} paginate:true`;
+      actionButtons.push({
+        label: "Next Page",
+        command: nextPageCommand,
+      });
+
+      const allIssuesCommand = `/mo linear-issues team:${teamId} all:true`;
+      actionButtons.push({
+        label: "Get All Issues",
+        command: allIssuesCommand,
+      });
+    }
+
+    // Add pull all button
+    if (issues.length > 0) {
+      const pullCommand = `/mo linear-pull team:${teamId}`;
+      actionButtons.push({
+        label: "Pull All Issues",
+        command: pullCommand,
+      });
+
+      // Add sync button
+      actionButtons.push({
+        label: "Sync with Linear",
+        command: `/mo linear-sync team:${teamId}`,
+      });
+    }
 
     // Format response
     return {
       success: true,
-      message: `Found ${issues.length} Linear issues`,
+      message: `Found ${issues.length} Linear issues${
+        hasMoreIssues ? " (more available)" : ""
+      }`,
       markdown: formatIssues(issues, teamName),
+      actionButtons,
     };
   } catch (error) {
     console.error("Linear issues command error:", error);
@@ -651,6 +891,16 @@ An error occurred while fetching issues:
 
 Please try again.
 `,
+      actionButtons: [
+        {
+          label: "View Teams",
+          command: "/mo linear-teams",
+        },
+        {
+          label: "Try Again",
+          command: "/mo linear-issues",
+        },
+      ],
     };
   }
 };

@@ -15,7 +15,18 @@ import {
   TaskPriority,
   TaskFilterParams,
 } from "../types/task";
-import { nanoid } from "nanoid";
+
+// Simple custom ID generator instead of using nanoid (to avoid ESM issues)
+function generateId(length: number = 10): string {
+  const characters =
+    "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 // Data store location
 const DATA_DIR = join(process.cwd(), "data");
@@ -30,6 +41,9 @@ const defaultConfig = {
   defaultPriority: TaskPriority.MEDIUM,
   linearApiKey: "",
   linearTeamId: "",
+  linearWebhookId: "",
+  linearWebhookSecret: "",
+  linearWebhookUrl: "",
 };
 
 // Current configuration
@@ -206,7 +220,7 @@ export async function createTask(params: CreateTaskParams): Promise<Task> {
   const now = new Date().toISOString();
 
   const newTask: Task = {
-    id: nanoid(10),
+    id: generateId(),
     title: params.title,
     description: params.description,
     status: params.status || TaskStatus.TODO,

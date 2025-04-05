@@ -25,3 +25,10 @@ export {
   linearStatesCommand,
   linearIssuesCommand,
 } from "./query-commands";
+
+// Webhook commands
+export {
+  linearWebhookRegisterCommand,
+  linearWebhookListCommand,
+  linearWebhookDeleteCommand,
+} from "./webhook-commands";

@@ -12,13 +12,16 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
+// Check for webhook flag (defaults to disabled)
+const enableWebhooks = process.env.ENABLE_WEBHOOKS === "true";
+
 // Initialize data store
 initializeDataStore()
   .then(() => {
     console.log("Data store initialized successfully");
 
-    // Start the MCP server
-    startServer()
+    // Start the MCP server (webhooks disabled by default for MCP context)
+    startServer(enableWebhooks)
       .then(() => {
         console.log("Mo MCP server started successfully");
       })
