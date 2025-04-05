@@ -18,8 +18,11 @@ import {
   updateTaskCommand,
   deleteTaskCommand,
   taskDetailsCommand,
-} from "./tasks";
-import { helpCommand, settingsCommand } from "./system";
+} from "./tasks/index";
+import { helpCommand, settingsCommand } from "./system/index";
+
+// Import Linear commands
+import { getLinearCommands } from "../linear/commands/register";
 
 // Command registry
 const commands: Record<string, CommandRegistration> = {
@@ -33,6 +36,9 @@ const commands: Record<string, CommandRegistration> = {
   // System commands
   help: helpCommand,
   settings: settingsCommand,
+
+  // Add Linear commands
+  ...getLinearCommands(),
 };
 
 /**

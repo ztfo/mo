@@ -86,6 +86,10 @@ const helpCommandHandler: CommandHandler = async (params, context) => {
       ].includes(cmd.name)
     );
 
+    const linearCommands = Object.values(commands).filter((cmd) =>
+      cmd.name.startsWith("linear-")
+    );
+
     const systemCommands = Object.values(commands).filter((cmd) =>
       ["help", "settings"].includes(cmd.name)
     );
@@ -95,6 +99,52 @@ const helpCommandHandler: CommandHandler = async (params, context) => {
     taskCommands.forEach((cmd) => {
       markdown += `- \`/mo ${cmd.name}\`: ${cmd.description}\n`;
     });
+
+    // Format Linear commands
+    if (linearCommands.length > 0) {
+      markdown += "\n## Linear Integration\n\n";
+
+      // Group Linear commands by functionality
+      const linearAuthCommands = linearCommands.filter((cmd) =>
+        ["linear-auth", "linear-status", "linear-logout"].includes(cmd.name)
+      );
+
+      const linearSyncCommands = linearCommands.filter((cmd) =>
+        ["linear-sync", "linear-push", "linear-pull"].includes(cmd.name)
+      );
+
+      const linearQueryCommands = linearCommands.filter((cmd) =>
+        [
+          "linear-teams",
+          "linear-projects",
+          "linear-states",
+          "linear-issues",
+        ].includes(cmd.name)
+      );
+
+      if (linearAuthCommands.length > 0) {
+        markdown += "### Authentication\n\n";
+        linearAuthCommands.forEach((cmd) => {
+          markdown += `- \`/mo ${cmd.name}\`: ${cmd.description}\n`;
+        });
+        markdown += "\n";
+      }
+
+      if (linearSyncCommands.length > 0) {
+        markdown += "### Synchronization\n\n";
+        linearSyncCommands.forEach((cmd) => {
+          markdown += `- \`/mo ${cmd.name}\`: ${cmd.description}\n`;
+        });
+        markdown += "\n";
+      }
+
+      if (linearQueryCommands.length > 0) {
+        markdown += "### Queries\n\n";
+        linearQueryCommands.forEach((cmd) => {
+          markdown += `- \`/mo ${cmd.name}\`: ${cmd.description}\n`;
+        });
+      }
+    }
 
     markdown += "\n## System\n\n";
     systemCommands.forEach((cmd) => {
