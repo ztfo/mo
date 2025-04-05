@@ -2,6 +2,9 @@
 
 Mo is a task management tool designed as a Model Context Protocol (MCP) server for Cursor IDE. It provides seamless integration with Linear for issue tracking and task management, allowing developers to manage their workflow directly from within Cursor.
 
+[![npm version](https://img.shields.io/npm/v/mo-linear-mcp.svg)](https://www.npmjs.com/package/mo-linear-mcp)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
 ## Project Status
 
 - **Phase 1**: ✅ Completed (March 21, 2024) - Core infrastructure and basic task management
@@ -33,11 +36,21 @@ See the [Project Plan](./docs/PROJECT_PLAN.md) for more details on the project t
 - Node.js 16+
 - Linear account (for Linear integration)
 
-### Option 1: Install From npm
+### Option 1: Install From npm (Recommended)
+
+The package is available on npm and can be installed globally:
 
 ```bash
 npm install -g mo-linear-mcp
 ```
+
+You can also use it directly without installation via npx:
+
+```bash
+npx mo-linear-mcp
+```
+
+Visit the package on npm: [mo-linear-mcp](https://www.npmjs.com/package/mo-linear-mcp)
 
 ### Option 2: Local Development Setup
 
@@ -99,6 +112,35 @@ To access the MCP configuration in Cursor:
 2. Go to Settings → Extensions → MCP Servers
 3. Click "Edit MCP Config" and paste the configuration above
 4. Adjust the "cwd" path to match your local repository path (for development mode)
+
+## Development and Publishing
+
+### Local Development
+
+For rapid development and testing:
+
+```bash
+# Watch for changes
+npm run watch
+
+# In another terminal, test commands
+echo '{"command": "/mo linear-status"}' | npm run dev
+```
+
+### Publishing Updates
+
+To publish a new version to npm:
+
+```bash
+# Bump the version (patch, minor, or major)
+npm version patch   # For small fixes
+npm version minor   # For new features
+npm version major   # For breaking changes
+
+# Build and publish
+npm run build
+npm publish
+```
 
 ## Usage
 
