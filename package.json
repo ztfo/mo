@@ -3,7 +3,9 @@
   "version": "0.1.1",
   "description": "Linear Task Management MCP for Cursor IDE",
   "main": "dist/index.js",
-  "bin": "dist/index.js",
+  "bin": {
+    "mo-linear-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
