@@ -1,15 +1,17 @@
 {
-  "name": "mo-mcp",
+  "name": "mo-linear-mcp",
   "version": "0.1.0",
-  "description": "Task Management MCP Server for Cursor IDE",
+  "description": "Linear Task Management MCP for Cursor IDE",
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "watch": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "lint": "eslint . --ext .ts",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cursor",
@@ -42,5 +44,100 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
+  },
+  "cursor-tools": {
+    "functions": [
+      {
+        "name": "linear_auth",
+        "description": "Authenticate with Linear using your API key",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "description": "Your Linear API key"
+            },
+            "team": {
+              "type": "string",
+              "description": "Linear team ID to set as default"
+            }
+          },
+          "required": [
+            "key"
+          ]
+        }
+      },
+      {
+        "name": "linear_status",
+        "description": "Check Linear authentication status",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "linear_teams",
+        "description": "List all teams in your Linear workspace",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "linear_projects",
+        "description": "List Linear projects",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "team": {
+              "type": "string",
+              "description": "Linear team ID"
+            }
+          }
+        }
+      },
+      {
+        "name": "linear_issues",
+        "description": "List Linear issues",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "team": {
+              "type": "string",
+              "description": "Linear team ID"
+            },
+            "assignee": {
+              "type": "string",
+              "description": "Filter by assignee (user ID or \"me\")"
+            },
+            "states": {
+              "type": "string",
+              "description": "Comma-separated list of states to filter by"
+            },
+            "limit": {
+              "type": "string",
+              "description": "Maximum number of issues to return (default: 10)"
+            }
+          }
+        }
+      },
+      {
+        "name": "linear_sync",
+        "description": "Synchronize tasks between Linear and local tasks",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "direction": {
+              "type": "string",
+              "description": "Sync direction (push, pull, or both)"
+            },
+            "team": {
+              "type": "string",
+              "description": "Linear team ID"
+            }
+          }
+        }
+      }
+    ]
   }
 }

@@ -1,0 +1,22 @@
+{
+  "version": "0.1",
+  "mcps": {
+    "mo-linear-mcp-dev": {
+      "name": "Mo Linear MCP (Dev)",
+      "description": "Linear Task Management for Cursor IDE - Development Mode",
+      "type": "local",
+      "command": "npm run dev",
+      "cwd": "/Users/luispalomares/Documents/Dev/mo",
+      "supportedPrefixes": ["/mo"],
+      "enabled": true
+    },
+    "mo-linear-mcp-chat": {
+      "name": "Mo Linear Chat Tool",
+      "description": "Linear Task Management Chat Tool for Cursor IDE",
+      "type": "npm",
+      "command": "npx",
+      "args": ["mo-linear-mcp"],
+      "enabled": true
+    }
+  }
+}
