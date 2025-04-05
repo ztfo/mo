@@ -6,10 +6,33 @@
  */
 
 import { processCommand } from "./commands";
-import { CommandContext, CommandResult } from "./types/command";
+import { CommandContext, CommandResult, MCPRequest } from "./types/command";
 
 // The MCP server state
 let isServerRunning = false;
+
+// Minimum supported MCP protocol version
+const MIN_SUPPORTED_VERSION = "1.0";
+
+/**
+ * Check if the provided protocol version is supported
+ *
+ * @param version The protocol version to check
+ * @returns Whether the version is supported
+ */
+function isSupportedVersion(version: string): boolean {
+  if (!version) return true; // Assume compatible if no version provided
+
+  try {
+    const [major, minor] = version.split(".").map(Number);
+    const [minMajor, minMinor] = MIN_SUPPORTED_VERSION.split(".").map(Number);
+
+    return major > minMajor || (major === minMajor && minor >= minMinor);
+  } catch (error) {
+    console.warn(`Invalid version format: ${version}`);
+    return false;
+  }
+}
 
 /**
  * Start the MCP server
@@ -31,6 +54,7 @@ export async function startServer(): Promise<void> {
     isServerRunning = true;
 
     console.log("MCP server started successfully");
+    console.log(`Supporting MCP protocol version ${MIN_SUPPORTED_VERSION}+`);
   } catch (error) {
     console.error("Failed to start MCP server:", error);
     throw error;
@@ -51,10 +75,21 @@ async function handleMcpRequest(data: Buffer): Promise<void> {
     const requestStr = data.toString().trim();
 
     // Parse the request as JSON
-    const request = JSON.parse(requestStr);
+    const request = JSON.parse(requestStr) as MCPRequest;
 
-    // Extract the command and context
-    const { command, context } = request;
+    // Extract the command, context and protocol version
+    const { command, context, version } = request;
+
+    // Check if the protocol version is supported
+    if (version && !isSupportedVersion(version)) {
+      sendMcpResponse({
+        success: false,
+        message: `Unsupported MCP protocol version: ${version}`,
+        error: `This MCP server requires protocol version ${MIN_SUPPORTED_VERSION} or higher`,
+        markdown: `### Error: Incompatible Protocol Version\n\nThis MCP server requires protocol version ${MIN_SUPPORTED_VERSION} or higher, but received ${version}.`,
+      });
+      return;
+    }
 
     if (!command || !command.startsWith("/mo")) {
       // Not a Mo command, ignore it
@@ -74,6 +109,8 @@ async function handleMcpRequest(data: Buffer): Promise<void> {
       success: false,
       message: "An error occurred while processing the command",
       error: error instanceof Error ? error.message : String(error),
+      markdown:
+        "### Error\n\nAn error occurred while processing the command. Please try again.",
     });
   }
 }

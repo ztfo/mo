@@ -6,6 +6,22 @@
  */
 
 /**
+ * MCP Request structure
+ *
+ * This represents the incoming request from Cursor
+ */
+export interface MCPRequest {
+  /** The command string */
+  command: string;
+
+  /** The context from Cursor */
+  context: CommandContext;
+
+  /** The MCP protocol version */
+  version?: string;
+}
+
+/**
  * Command context from Cursor
  *
  * This represents the context provided by Cursor when a command is invoked,
@@ -55,6 +71,15 @@ export interface CommandResult {
 
   /** Error details if success is false */
   error?: string;
+
+  /** Optional action buttons to provide interactive responses */
+  actionButtons?: {
+    /** Button label */
+    label: string;
+
+    /** Command to execute when clicked */
+    command: string;
+  }[];
 }
 
 /**
