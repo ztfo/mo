@@ -24,39 +24,48 @@ The Linear integration provides the following tools to the MCP system:
 
 ### Authentication Tools
 
-- `linear-auth`: Authenticate with Linear API
-- `linear-status`: Check current authentication status
-- `linear-logout`: Remove stored credentials
+- `linear_auth`: Authenticate with Linear API
+- `linear_status`: Check current authentication status
+- `linear_logout`: Remove stored credentials
 
 ### Synchronization Tools
 
-- `linear-sync`: Bidirectional synchronization between Mo and Linear
-- `linear-push`: Push Mo tasks to Linear
-- `linear-pull`: Pull Linear issues to Mo
+- `linear_sync`: Bidirectional synchronization between Mo and Linear
+- `linear_push`: Push Mo tasks to Linear
+- `linear_pull`: Pull Linear issues to Mo
 
 ### Query Tools
 
-- `linear-teams`: List available Linear teams
-- `linear-projects`: List projects in a Linear team
-- `linear-states`: List workflow states in a Linear team
-- `linear-issues`: List issues in Linear
+- `linear_teams`: List available Linear teams
+- `linear_projects`: List projects in a Linear team
+- `linear_states`: List workflow states in a Linear team
+- `linear_issues`: List issues in Linear
+
+### Webhook Tools
+
+- `linear_webhook_register`: Register a webhook with Linear
+- `linear_webhook_list`: List registered webhooks
+- `linear_webhook_delete`: Delete a registered webhook
 
 ## Resource-Tool Mapping
 
 The following table shows which tools operate on which resources:
 
-| Tool              | Resources Accessed         |
-| ----------------- | -------------------------- |
-| `linear-auth`     | `linearUser`, `linearTeam` |
-| `linear-status`   | `linearUser`, `linearTeam` |
-| `linear-logout`   | `linearUser`               |
-| `linear-sync`     | `linearIssue`              |
-| `linear-push`     | `linearIssue`              |
-| `linear-pull`     | `linearIssue`              |
-| `linear-teams`    | `linearTeam`               |
-| `linear-projects` | `linearProject`            |
-| `linear-states`   | `linearState`              |
-| `linear-issues`   | `linearIssue`              |
+| Tool                      | Resources Accessed         |
+| ------------------------- | -------------------------- |
+| `linear_auth`             | `linearUser`, `linearTeam` |
+| `linear_status`           | `linearUser`, `linearTeam` |
+| `linear_logout`           | `linearUser`               |
+| `linear_sync`             | `linearIssue`              |
+| `linear_push`             | `linearIssue`              |
+| `linear_pull`             | `linearIssue`              |
+| `linear_teams`            | `linearTeam`               |
+| `linear_projects`         | `linearProject`            |
+| `linear_states`           | `linearState`              |
+| `linear_issues`           | `linearIssue`              |
+| `linear_webhook_register` | `linearWebhook`            |
+| `linear_webhook_list`     | `linearWebhook`            |
+| `linear_webhook_delete`   | `linearWebhook`            |
 
 ## MCP Integration Implementation
 

@@ -276,6 +276,18 @@ async function handleMcpRequest(data: Buffer): Promise<void> {
  */
 function sendMcpResponse(result: CommandResult): void {
   try {
+    // Don't include full tools manifest in heartbeat pings
+    if (result.message === "ping") {
+      // Simple ping response without the large tools data
+      const pingResponse = {
+        success: true,
+        message: "pong",
+      };
+      debugLog(`Sending ping response: ${JSON.stringify(pingResponse)}`);
+      process.stdout.write(JSON.stringify(pingResponse) + "\n");
+      return;
+    }
+
     // Convert the result to a JSON string
     const responseStr = JSON.stringify(result);
 
@@ -284,15 +296,7 @@ function sendMcpResponse(result: CommandResult): void {
     // Write the response to stdout for Cursor to receive
     process.stdout.write(responseStr + "\n");
 
-    // Flush the output to ensure it's sent immediately
-    try {
-      // Try to force flush the output
-      // Add an extra newline to help with flushing
-      process.stdout.write("\n");
-      debugLog("Added extra newline for flushing");
-    } catch (err) {
-      debugLog(`Error while flushing stdout: ${err}`);
-    }
+    // No extra newline needed - it can cause parsing issues
   } catch (error) {
     console.error("Error sending MCP response:", error);
     debugLog(`Error sending MCP response: ${error}`);
@@ -328,6 +332,13 @@ function getToolsManifest() {
         properties: {},
       },
     },
+    linear_logout: {
+      description: "Log out from Linear API",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
     linear_teams: {
       description: "List all teams in your Linear workspace",
       parameters: {
@@ -337,6 +348,18 @@ function getToolsManifest() {
     },
     linear_projects: {
       description: "List Linear projects",
+      parameters: {
+        type: "object",
+        properties: {
+          team: {
+            type: "string",
+            description: "Linear team ID",
+          },
+        },
+      },
+    },
+    linear_states: {
+      description: "List Linear workflow states",
       parameters: {
         type: "object",
         properties: {
@@ -385,6 +408,92 @@ function getToolsManifest() {
             description: "Linear team ID",
           },
         },
+      },
+    },
+    linear_push: {
+      description: "Push tasks from Mo to Linear",
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: "Specific task ID to push",
+          },
+          filter: {
+            type: "string",
+            description: "Filter query for tasks to push",
+          },
+        },
+      },
+    },
+    linear_pull: {
+      description: "Pull issues from Linear to Mo",
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: "Specific Linear issue ID to pull",
+          },
+          team: {
+            type: "string",
+            description: "Linear team ID to pull from",
+          },
+          states: {
+            type: "string",
+            description: "Comma-separated list of Linear states to filter by",
+          },
+          limit: {
+            type: "string",
+            description: "Maximum number of issues to pull",
+          },
+        },
+      },
+    },
+    linear_webhook_register: {
+      description: "Register a webhook with Linear",
+      parameters: {
+        type: "object",
+        properties: {
+          url: {
+            type: "string",
+            description: "Webhook URL",
+          },
+          team: {
+            type: "string",
+            description: "Linear team ID",
+          },
+          resources: {
+            type: "string",
+            description:
+              "Comma-separated list of resource types (Issue,Comment,IssueLabel)",
+          },
+          label: {
+            type: "string",
+            description: "Label for the webhook",
+          },
+        },
+        required: ["url"],
+      },
+    },
+    linear_webhook_list: {
+      description: "List registered webhooks",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+    },
+    linear_webhook_delete: {
+      description: "Delete a registered webhook",
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: "Webhook ID to delete",
+          },
+        },
+        required: ["id"],
       },
     },
   };

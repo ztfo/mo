@@ -1,0 +1,40 @@
+# Development files
+.git/
+.github/
+.vscode/
+node_modules/
+src/
+tests/
+scripts/
+.gitignore
+.eslintrc.json
+.cursorignore
+tsconfig.json
+*.tsbuildinfo
+
+# Environment/Secrets
+.env*
+*.env.*
+*credential*.json
+*secret*.json
+
+# Local data
+data/
+
+# Documentation (optional - include if you want docs in the package)
+# docs/
+
+# Example files
+assets/
+
+# Personal configs
+.cursor/
+~/.cursor/
+mcp.json
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
