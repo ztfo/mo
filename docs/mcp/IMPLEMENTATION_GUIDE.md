@@ -9,6 +9,7 @@ This guide outlines the implementation details for building the Mo MCP server fo
 - **Cursor MCP Protocol**: For integration with Cursor IDE
 - **Linear API**: For integration with Linear task management
 - **lowdb/JSONFile**: For lightweight local data storage
+- **crypto-js**: For secure credential encryption
 
 ## Project Structure
 
@@ -37,100 +38,215 @@ mo/
 │   └── types/                   # TypeScript type definitions
 │       ├── task.ts              # Task types
 │       ├── command.ts           # Command types
+│       ├── mcp.ts               # MCP protocol types
 │       └── linear.ts            # Linear API types
 └── data/                        # Local data storage
     └── tasks.json               # Task database
 ```
 
-## Implementation Steps
+## MCP Protocol Implementation
 
-### 1. Basic MCP Server Setup
+### Protocol Structure
 
-1. Create the server entry point that listens for MCP requests
-2. Implement basic command routing
-3. Setup error handling and logging
-4. Create a simple response mechanism
-
-### 2. Data Layer Implementation
-
-1. Implement local storage for tasks using JSONFile
-2. Create CRUD operations for tasks
-3. Implement configuration storage with encryption for sensitive data
-4. Add data validation
-
-### 3. Command Implementation
-
-1. Build the command parser to extract parameters
-2. Implement core task management commands
-3. Add formatting for command responses
-4. Implement help and settings commands
-
-### 4. Linear Integration
-
-1. Implement Linear API client
-2. Add authentication flow for API key storage
-3. Implement data mapping between local tasks and Linear issues
-4. Build synchronization logic for bidirectional updates
-
-### 5. Advanced Features
-
-1. Add project planning with AI assistance
-2. Implement task reporting and visualization
-3. Add contextual awareness for task creation
-4. Implement smart suggestions based on current work
-
-## Command Handling Pattern
-
-Commands follow this processing pattern:
+The MCP protocol uses JSON communication over stdin/stdout:
 
 ```typescript
-// Command handler pattern
-async function handleCommand(
-  ctx: CommandContext,
-  params: Record<string, string>
-): Promise<CommandResult> {
-  try {
-    // Validate parameters
-    validateParams(params);
+// MCP Request format
+interface MCPRequest {
+  version: string; // MCP protocol version
+  command: string; // Command string (e.g., "/mo tasks")
+  context: CommandContext; // Editor context from Cursor
+}
 
-    // Process the command
-    const result = await processCommand(ctx, params);
-
-    // Format the response
-    return formatResponse(result);
-  } catch (error) {
-    // Handle errors
-    return formatError(error);
-  }
+// MCP Response format
+interface MCPResponse {
+  success: boolean; // Whether the command succeeded
+  message: string; // Short message for display
+  markdown?: string; // Rich markdown content
+  data?: any; // Optional structured data
+  error?: string; // Error message if success is false
+  actionButtons?: {
+    // Optional action buttons
+    label: string; // Button label
+    command: string; // Command to execute
+  }[];
 }
 ```
 
-## Data Storage Format
+### Version Handling
 
-Local data is stored in a JSON format that's both human-readable and efficiently processable:
+To handle different versions of the MCP protocol:
 
-```json
-{
-  "tasks": [
-    {
-      "id": "task-123",
-      "title": "Implement MCP server",
-      "description": "Create the core MCP server implementation",
-      "status": "in-progress",
-      "priority": "high",
-      "created": "2023-03-14T12:00:00Z",
-      "updated": "2023-03-14T15:30:00Z",
-      "metadata": {
-        "filePath": "/src/server.ts",
-        "linearId": "LIN-123"
-      }
-    }
-  ],
-  "config": {
-    "linearApiKey": "encrypted:abc123def456",
-    "linearTeamId": "team_123",
-    "defaultPriority": "medium"
+```typescript
+// In server.ts
+function isSupportedVersion(version: string): boolean {
+  const [major, minor] = version.split(".").map(Number);
+  return major >= 1 || (major === 0 && minor >= 5);
+}
+
+// In handleMcpRequest
+const { version, command, context } = request;
+if (version && !isSupportedVersion(version)) {
+  sendMcpResponse({
+    success: false,
+    message: `Unsupported MCP protocol version: ${version}. This tool requires v1.0 or higher.`,
+    markdown: `### Error: Incompatible Version\n\nThis MCP server requires protocol version 1.0 or higher.`,
+  });
+  return;
+}
+```
+
+### Server Implementation
+
+The core MCP server is implemented in `server.ts`:
+
+```typescript
+// Process stdin for incoming requests
+process.stdin.on("data", handleMcpRequest);
+
+// Send responses to stdout
+function sendMcpResponse(response: MCPResponse): void {
+  process.stdout.write(JSON.stringify(response) + "\n");
+}
+```
+
+## Context Utilization
+
+### Context Structure
+
+The `CommandContext` interface provides access to Cursor's editor context:
+
+```typescript
+interface CommandContext {
+  currentFilePath?: string; // Current file
+  selectedText?: string; // Selected text
+  workspacePath?: string; // Workspace path
+  cursorPosition?: {
+    // Cursor position
+    line: number;
+    character: number;
+  };
+  cursorVersion?: string; // Cursor version
+  additionalContext?: Record<string, any>; // Extra context
+}
+```
+
+### Utilizing Context in Commands
+
+Example of using context in a new task command:
+
+```typescript
+function newTaskCommand(params, context) {
+  // Generate title from file if not provided
+  const title = params.title || path.basename(context.currentFilePath || "");
+
+  // Use selected text as description
+  const description = context.selectedText || "";
+
+  // Add file context to task metadata
+  const metadata = {
+    filePath: context.currentFilePath,
+    position: context.cursorPosition,
+    selection: context.selectedText
+      ? {
+          text: context.selectedText.substring(0, 100) + "...",
+        }
+      : undefined,
+  };
+
+  // Create task with context data
+  return createTask({ title, description, metadata });
+}
+```
+
+## Command System
+
+### Command Registration
+
+Commands are registered in `commands/index.ts`:
+
+```typescript
+const commands = {
+  tasks: {
+    description: "List tasks with optional filtering",
+    usage: "/mo tasks [filter:status:in-progress] [limit:5]",
+    handler: tasksCommandHandler,
+  },
+  "new-task": {
+    description: "Create a new task",
+    usage: '/mo new-task title:"Task title" [priority:high]',
+    handler: newTaskCommandHandler,
+  },
+  // Additional commands...
+};
+```
+
+### Command Parsing
+
+Commands are parsed using a regex-based approach:
+
+```typescript
+function parseParameters(paramStr) {
+  const params = {};
+  const paramRegex = /(\w+):((?:"[^"]*")|(?:[^\s"]+))/g;
+
+  let match;
+  while ((match = paramRegex.exec(paramStr)) !== null) {
+    const [, key, rawValue] = match;
+    params[key] = rawValue.startsWith('"') ? rawValue.slice(1, -1) : rawValue;
   }
+
+  return params;
+}
+```
+
+### Command Response Formatting
+
+Responses should include rich markdown for best display in Cursor:
+
+```typescript
+function formatTaskList(tasks) {
+  return {
+    success: true,
+    message: `Found ${tasks.length} tasks`,
+    markdown:
+      `### Tasks (${tasks.length})\n\n` +
+      tasks
+        .map(
+          (task) =>
+            `- **${task.title}** (${
+              task.status
+            })\n  ${task.description.substring(0, 60)}...`
+        )
+        .join("\n\n") +
+      "\n\n*Use `/mo task-details id:[task-id]` to view details.*",
+  };
+}
+```
+
+## Data Storage Implementation
+
+Tasks and configuration are stored in JSON files:
+
+```typescript
+// Task structure
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  created: string; // ISO timestamp
+  updated: string; // ISO timestamp
+  metadata: {
+    filePath?: string;
+    selection?: {
+      start?: { line: number; character: number };
+      text?: string;
+    };
+    linearId?: string;
+    tags?: string[];
+  };
 }
 ```
 
@@ -143,12 +259,43 @@ Linear integration uses the GraphQL API with these core operations:
 3. **Issue Updates**: Sync changes between local and Linear
 4. **Issue Queries**: Fetch issues based on various criteria
 
+### Secure API Key Storage
+
+```typescript
+import CryptoJS from "crypto-js";
+
+// Encrypt API key before storage
+function encryptApiKey(apiKey: string, salt: string): string {
+  return CryptoJS.AES.encrypt(apiKey, salt).toString();
+}
+
+// Decrypt API key for use
+function decryptApiKey(encryptedKey: string, salt: string): string {
+  const bytes = CryptoJS.AES.decrypt(encryptedKey, salt);
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
+```
+
 ## Testing Approach
 
 1. **Unit Tests**: Test individual components and handlers
 2. **Integration Tests**: Test command flow and data persistence
 3. **Linear API Mocks**: Test Linear integration without actual API calls
 4. **Manual Testing**: Test within Cursor IDE for real-world usage
+
+### Example Test Case
+
+```typescript
+// Test command parsing
+test("parseParameters extracts quoted parameters correctly", () => {
+  const input = 'title:"My Task Title" priority:high';
+  const expected = {
+    title: "My Task Title",
+    priority: "high",
+  };
+  expect(parseParameters(input)).toEqual(expected);
+});
+```
 
 ## Deployment and Distribution
 
@@ -159,10 +306,13 @@ MCP servers for Cursor can be packaged and distributed in several ways:
 3. **Bundled Distribution**: Create a standalone bundle with dependencies
 4. **Cursor Extension**: Eventually package as a proper Cursor extension
 
-## Next Steps
+## Implementation Process
 
-1. Setup the basic project structure
-2. Implement the MCP server skeleton
-3. Add the first command handlers
-4. Create the data store
-5. Test within Cursor
+1. Implement core MCP server with version handling
+2. Add command parsing and routing infrastructure
+3. Implement basic task management commands
+4. Add context utilization to enhance task creation
+5. Implement data persistence layer
+6. Add Linear API integration with secure credentials
+7. Implement comprehensive tests
+8. Package for distribution
