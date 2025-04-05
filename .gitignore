@@ -6,7 +6,7 @@ yarn.lock
 # Additional Ignore
 .vscodeignore
 .cursorignore
-
+~/.cursor/mcp.json
 # Build outputs
 out/
 dist/
