@@ -127,21 +127,6 @@ npm run watch
 echo '{"command": "/mo linear-status"}' | npm run dev
 ```
 
-### Publishing Updates
-
-To publish a new version to npm:
-
-```bash
-# Bump the version (patch, minor, or major)
-npm version patch   # For small fixes
-npm version minor   # For new features
-npm version major   # For breaking changes
-
-# Build and publish
-npm run build
-npm publish
-```
-
 ## Usage
 
 ### Editor Mode Commands
